@@ -1,7 +1,7 @@
-package ir.syrent
+package org.sayandevelopment.sayanvanish.api
 
 import net.kyori.adventure.text.Component
-import java.util.UUID
+import java.util.*
 
 interface User {
 
@@ -18,6 +18,8 @@ interface User {
         isVanished = false
     }
 
-    fun sendMessage(message: Component, placeholders: List<Placeholder>)
+    fun sendMessage(content: Component)
+
+    fun sendActionbar(content: Component)
 
 }

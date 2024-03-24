@@ -5,37 +5,29 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
-repositories {
-    mavenCentral()
-}
-
 allprojects {
-    group = "com.github.syrent"
-    version = "1.0.0"
+    group = "org.sayandevelopment.sayanvanish"
+    version = "0.0.1"
 
     plugins.apply("java")
     plugins.apply("maven-publish")
     plugins.apply("com.github.johnrengelman.shadow")
 
+    repositories {
+        mavenCentral()
+    }
+
     java {
-        sourceCompatibility = JavaVersion.VERSION_1_8
+        withJavadocJar()
+        withSourcesJar()
     }
 }
 
 publishing {
     publications {
         create<MavenPublication>("shadowJar") {
+//            group = "com.github.Syrent"
             artifact(tasks["shadowJar"])
-        }
-    }
-
-    repositories {
-        maven {
-            name = "jitpack"
-            url = uri("https://jitpack.io/")
-            content {
-                includeGroup("ir.syrent.sayanvanish")
-            }
         }
     }
 }

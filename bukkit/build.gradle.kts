@@ -2,32 +2,26 @@ plugins {
     kotlin("jvm")
 }
 
-group = "ir.syrent.spigot"
-version = "1.0.0"
+group = "org.sayandevelopment.sayanvanish.bukkit"
 
 repositories {
-    mavenCentral()
+    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
 }
 
 dependencies {
-    compileOnly(project(":api"))
-}
+    compileOnly("org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT")
 
+    implementation("net.kyori:adventure-api:4.16.0")
+    implementation("net.kyori:adventure-text-minimessage:4.16.0")
+    implementation("net.kyori:adventure-platform-bukkit:4.3.2")
+
+    implementation(project(":api"))
+}
 
 publishing {
     publications {
         create<MavenPublication>("shadowJar") {
             artifact(tasks["shadowJar"])
-        }
-    }
-
-    repositories {
-        maven {
-            name = "jitpack"
-            url = uri("https://jitpack.io/")
-            content {
-                includeGroup("ir.syrent.sayanvanish")
-            }
         }
     }
 }
