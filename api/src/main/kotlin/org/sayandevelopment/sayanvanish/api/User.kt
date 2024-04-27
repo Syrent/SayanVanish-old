@@ -9,6 +9,8 @@ interface User {
     val username: String
 
     var isVanished: Boolean
+    var isOnline: Boolean
+    var vanishLevel: Int
 
     fun vanish() {
         isVanished = true
@@ -18,8 +20,12 @@ interface User {
         isVanished = false
     }
 
-    fun sendMessage(content: Component)
+    open fun sendMessage(content: Component) {
 
-    fun sendActionbar(content: Component)
+    }
+
+    open fun sendActionbar(content: Component) {
+
+    }
 
 }

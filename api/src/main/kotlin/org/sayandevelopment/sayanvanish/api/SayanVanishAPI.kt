@@ -1,6 +1,6 @@
 package org.sayandevelopment.sayanvanish.api
 
-import java.util.UUID
+import java.util.*
 
 open class SayanVanishAPI<U: User> {
 
@@ -11,8 +11,24 @@ open class SayanVanishAPI<U: User> {
         return Platform
     }
 
-    fun getVanishedUsers(): Collection<U> {
+    fun getUsers(): Collection<U> {
         return vanishedUsers.values
+    }
+
+    fun getUsers(predicate: (U) -> Boolean): Collection<U> {
+        return getUsers().filter(predicate)
+    }
+
+    fun getSortedUsers(predicate: (U) -> Int) {
+        getUsers().sortedByDescending(predicate)
+    }
+
+    fun getVanishedUsers(): Collection<U> {
+        return getUsers(User::isVanished)
+    }
+
+    fun getOnlineUsers(): Collection<U> {
+        return getUsers(User::isOnline)
     }
 
     fun addUser(user: U) {

@@ -2,7 +2,7 @@ package org.sayandevelopment.sayanvanish.api
 
 object Platform {
 
-    var id = "unsupported"
+    private var id = "unsupported"
 
     @JvmStatic
     fun getId(): String {
