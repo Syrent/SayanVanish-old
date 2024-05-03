@@ -1,9 +1,6 @@
 plugins {
-    kotlin("jvm")
     id("xyz.jpenilla.run-paper") version "2.3.0"
 }
-
-group = "org.sayandevelopment.sayanvanish.bukkit"
 
 repositories {
     // Spigot
@@ -19,7 +16,7 @@ repositories {
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.20.5-R0.1-SNAPSHOT")
 
-    implementation("org.sayandevelopment:stickynote-bukkit:1.0.0")
+    implementation("org.sayandev:stickynote-bukkit:1.0.0")
 
     api(project(":sayanvanish-api"))
     api(kotlin("reflect"))
@@ -30,13 +27,9 @@ dependencies {
 tasks {
     runServer {
         minecraftVersion("1.20.6")
-    }
-}
 
-publishing {
-    publications {
-        create<MavenPublication>("shadowJar") {
-            artifact(tasks["shadowJar"])
+        downloadPlugins {
+            url("https://download.luckperms.net/1539/bukkit/loader/LuckPerms-Bukkit-5.4.126.jar")
         }
     }
 }

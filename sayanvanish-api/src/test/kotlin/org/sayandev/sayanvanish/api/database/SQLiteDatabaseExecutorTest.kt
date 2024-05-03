@@ -1,11 +1,11 @@
-package org.sayandevelopment.sayanvanish.api.database
+package org.sayandev.sayanvanish.api.database
 
 import net.kyori.adventure.text.Component
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
-import org.sayandevelopment.sayanvanish.api.User
-import org.sayandevelopment.stickynote.core.database.sqlite.SQLiteDatabase
+import org.sayandev.sayanvanish.api.User
+import org.sayandev.stickynote.core.database.sqlite.SQLiteDatabase
 import java.io.File
 import java.util.*
 import java.util.logging.Logger
@@ -30,9 +30,7 @@ class SQLiteDatabaseExecutorTest {
     @Test
     @Order(1)
     fun generateDatabaseConfiguration() {
-        assertDoesNotThrow {
-            DatabaseConfig(File.createTempFile("sayanvanish_temp_database", ".yml"))
-        }
+        assertDoesNotThrow { DatabaseConfig() }
     }
 
     @Test

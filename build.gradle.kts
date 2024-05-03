@@ -6,7 +6,7 @@ plugins {
 }
 
 allprojects {
-    group = "org.sayandevelopment"
+    group = "org.sayndev"
     version = "1.0.0"
 
     plugins.apply("java")
@@ -18,15 +18,8 @@ allprojects {
         mavenCentral()
         mavenLocal()
 
-        maven("https://repo.sayandevelopment.org/snapshots")
-        maven("https://repo.sayandevelopment.org/releases")
-
-        maven("https://maven.pkg.github.com/mohamad82bz/ruom") {
-            credentials {
-                username = project.findProperty("gpr.user") as String
-                password = project.findProperty("gpr.key") as String
-            }
-        }
+        maven("https://repo.sayandev.org/snapshots")
+        maven("https://repo.sayandev.org/releases")
     }
 
     java {
@@ -55,7 +48,7 @@ subprojects {
         shadowJar {
             archiveFileName.set("${rootProject.name}-${version}-${this@subprojects.name.removePrefix("sayanvanish-")}.jar")
             destinationDirectory.set(file(rootProject.projectDir.path + "/bin"))
-            relocate("org.sayandevelopment.stickynote", "org.sayandevelopment.sayanvanish.lib.stickynote")
+            relocate("org.sayandev.stickynote", "org.sayandev.sayanvanish.lib.stickynote")
             exclude("META-INF/**")
             from("LICENSE")
             minimize()

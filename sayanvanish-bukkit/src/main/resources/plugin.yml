@@ -1,6 +1,6 @@
 name: 'SayanVanish'
 version: '1.0.0-SNAPSHOT'
-main: org.sayandevelopment.sayanvanish.bukkit.SayanVanish
+main: org.sayandev.sayanvanish.bukkit.SayanVanish
 api-version: 1.13
 prefix: SayanVanish
 authors: [ Syrent ]

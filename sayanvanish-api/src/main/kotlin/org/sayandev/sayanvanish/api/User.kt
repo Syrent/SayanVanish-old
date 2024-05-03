@@ -1,8 +1,9 @@
-package org.sayandevelopment.sayanvanish.api
+package org.sayandev.sayanvanish.api
 
 import net.kyori.adventure.text.Component
-import org.sayandevelopment.sayanvanish.api.exception.UnsupportedPlatformException
+import org.sayandev.sayanvanish.api.exception.UnsupportedPlatformException
 import java.util.*
+import kotlin.reflect.KClass
 
 interface User {
 
@@ -30,11 +31,21 @@ interface User {
     }
 
     open fun hasPermission(permission: String): Boolean {
-        return false
+        throw UnsupportedPlatformException("hasPermission")
+    }
+
+    fun hasPermission(permission: Permission): Boolean {
+        return hasPermission(permission.permission())
     }
 
     fun save() {
         SayanVanishAPI.getInstance().addUser(this)
+    }
+
+    companion object {
+        fun User.cast(to: KClass<out User>): Any {
+            return to.java.getDeclaredMethod("fromUser", User::class.java).invoke(null, this)
+        }
     }
 
 }

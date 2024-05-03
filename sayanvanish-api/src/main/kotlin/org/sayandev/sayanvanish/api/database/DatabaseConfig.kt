@@ -1,7 +1,7 @@
-package org.sayandevelopment.sayanvanish.api.database
+package org.sayandev.sayanvanish.api.database
 
-import org.sayandevelopment.sayanvanish.api.Platform
-import org.sayandevelopment.stickynote.core.configuration.Config
+import org.sayandev.sayanvanish.api.Platform
+import org.sayandev.stickynote.core.configuration.Config
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Setting
 import java.io.File
@@ -16,7 +16,7 @@ data class DatabaseConfig(
     val password: String = "",
     val poolProperties: PoolProperties = PoolProperties(),
     val tablePrefix: String = "sayanvanish_"
-) : Config(Platform.getCurrentPlatform().rootDirectory, FILE_NAME) {
+) : Config(Platform.get().rootDirectory, FILE_NAME) {
 
     init {
         load()
@@ -42,7 +42,7 @@ data class DatabaseConfig(
 
         @JvmStatic
         fun fromConfig(): DatabaseConfig? {
-            return fromConfig<DatabaseConfig>(File(Platform.getCurrentPlatform().rootDirectory, FILE_NAME))
+            return fromConfig<DatabaseConfig>(File(Platform.get().rootDirectory, FILE_NAME))
         }
     }
 

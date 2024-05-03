@@ -1,4 +1,4 @@
-package org.sayandevelopment.sayanvanish.api
+package org.sayandev.sayanvanish.api
 
 import java.io.File
 import java.util.logging.Logger
@@ -19,7 +19,7 @@ data class Platform(
         }
 
         @JvmStatic
-        fun getCurrentPlatform() = currentPlatform
+        fun get() = currentPlatform
     }
 
 }

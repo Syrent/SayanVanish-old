@@ -1,12 +1,16 @@
-package org.sayandevelopment.sayanvanish.api.database
+package org.sayandev.sayanvanish.api.database
 
-import org.sayandevelopment.sayanvanish.api.User
-import org.sayandevelopment.stickynote.core.database.Query
+import org.sayandev.sayanvanish.api.Platform
+import org.sayandev.sayanvanish.api.User
+import org.sayandev.sayanvanish.api.User.Companion.cast
+import org.sayandev.stickynote.core.database.Query
 import java.util.*
+import kotlin.reflect.KClass
+import kotlin.reflect.safeCast
 
 
 class DatabaseExecutor<U : User>(
-    val database: org.sayandevelopment.stickynote.core.database.Database,
+    val database: org.sayandev.stickynote.core.database.Database,
     val config: DatabaseConfig
 ) : Database<U> {
 
@@ -28,24 +32,30 @@ class DatabaseExecutor<U : User>(
         cache.clear()
     }
 
-    override fun getUser(uniqueId: UUID, useCache: Boolean): U? {
+    override fun getUser(uniqueId: UUID, useCache: Boolean, type: KClass<out User>): U? {
         if (useCache) {
             return cache[uniqueId]
         }
 
         val result = database.runQuery(Query.query("SELECT * FROM ${config.tablePrefix}users WHERE UUID = ?;").setStatementValue(1, uniqueId.toString())).result ?: return null
         if (!result.next()) return null
-        return object : User {
+        val user = object : User {
             override val uniqueId: UUID = UUID.fromString(result.getString("UUID"))
             override val username: String = result.getString("username")
 
             override var isVanished: Boolean = result.getBoolean("is_vanished")
             override var isOnline: Boolean = result.getBoolean("is_online")
             override var vanishLevel: Int = result.getInt("vanish_level")
-        } as U
+        }
+        result.close()
+        return (type.safeCast(user) as? U) ?: (user.cast(type) as U)
     }
 
     override fun getUsers(useCache: Boolean): List<U> {
+        return getUsers(useCache, User::class)
+    }
+
+    override fun getUsers(useCache: Boolean, type: KClass<out User>): List<U> {
         if (useCache) {
             return cache.values.toList()
         }
@@ -53,22 +63,27 @@ class DatabaseExecutor<U : User>(
         val result = database.runQuery(Query.query("SELECT * FROM ${config.tablePrefix}users;")).result ?: return emptyList()
         val users = mutableListOf<U>()
         while (result.next()) {
-            users.add(object : User {
+            val user = object : User {
                 override val uniqueId: UUID = UUID.fromString(result.getString("UUID"))
                 override val username: String = result.getString("username")
 
                 override var isVanished: Boolean = result.getBoolean("is_vanished")
                 override var isOnline: Boolean = result.getBoolean("is_online")
                 override var vanishLevel: Int = result.getInt("vanish_level")
-            } as U)
+            }
+            users.add((user as? U) ?: user.cast(type) as U)
         }
+        result.close()
         return users
+    }
+
+    override fun getUser(uniqueId: UUID, useCache: Boolean): U? {
+        return getUser(uniqueId, useCache, User::class)
     }
 
     override fun addUser(user: U) {
         cache[user.uniqueId] = user
-        val result = database.runQuery(Query.query("SELECT UUID FROM ${config.tablePrefix}users WHERE UUID = ?;").setStatementValue(1, user.uniqueId.toString())).result ?: throw NullPointerException("Couldn't get result for addUser database query")
-        if (!result.next()) {
+        if (!hasUser(user.uniqueId, false)) {
             database.runQuery(
                 Query.query("INSERT ${if (type == DatabaseMethod.MYSQL) "IGNORE " else ""}INTO ${config.tablePrefix}users (UUID, username, is_vanished, is_online, vanish_level) VALUES (?,?,?,?,?);")
                     .setStatementValue(1, user.uniqueId.toString())
@@ -80,6 +95,17 @@ class DatabaseExecutor<U : User>(
         } else {
             updateUser(user)
         }
+    }
+
+    override fun hasUser(uniqueId: UUID, useCache: Boolean): Boolean {
+        if (useCache) {
+            return cache.contains(uniqueId)
+        }
+        val queryResult = database.runQuery(Query.query("SELECT * FROM ${config.tablePrefix}users WHERE UUID = ?;").setStatementValue(1, uniqueId.toString()))
+        val result = queryResult.result ?: return false
+        val hasNext = result.next()
+        result.close()
+        return hasNext
     }
 
     override fun removeUser(uniqueId: UUID) {

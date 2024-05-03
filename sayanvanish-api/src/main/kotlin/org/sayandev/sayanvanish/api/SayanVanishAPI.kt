@@ -1,17 +1,19 @@
-package org.sayandevelopment.sayanvanish.api
+package org.sayandev.sayanvanish.api
 
-import org.sayandevelopment.sayanvanish.api.database.DatabaseConfig
-import org.sayandevelopment.sayanvanish.api.database.DatabaseExecutor
-import org.sayandevelopment.sayanvanish.api.database.DatabaseMethod
-import org.sayandevelopment.stickynote.core.database.sqlite.SQLiteDatabase
+import org.sayandev.sayanvanish.api.database.DatabaseConfig
+import org.sayandev.sayanvanish.api.database.DatabaseExecutor
+import org.sayandev.sayanvanish.api.database.DatabaseMethod
+import org.sayandev.stickynote.core.database.sqlite.SQLiteDatabase
 import java.io.File
 import java.util.*
+import kotlin.reflect.KClass
 
-open class SayanVanishAPI<U: User>(val useCache: Boolean) {
-    constructor(): this(false)
+open class SayanVanishAPI<U: User>(val type: KClass<out User>, val useCache: Boolean) {
+    constructor(type: KClass<out User>): this(type, false)
+    constructor(): this(User::class)
 
     val databaseExecutor = DatabaseExecutor<U>(
-        SQLiteDatabase(File(Platform.getCurrentPlatform().rootDirectory, "storage.db"), Platform.getCurrentPlatform().logger),
+        SQLiteDatabase(File(Platform.get().rootDirectory, "storage.db"), Platform.get().logger),
         DatabaseConfig.fromConfig() ?: DatabaseConfig(DatabaseMethod.SQLITE)
     ).apply {
         this.connect()
@@ -19,11 +21,11 @@ open class SayanVanishAPI<U: User>(val useCache: Boolean) {
     }
 
     fun getPlatform(): Platform {
-        return Platform.getCurrentPlatform()
+        return Platform.get()
     }
 
     fun getUsers(): List<U> {
-        return databaseExecutor.getUsers(useCache)
+        return databaseExecutor.getUsers(useCache, type)
     }
 
     fun getUsers(predicate: (U) -> Boolean): List<U> {
@@ -55,7 +57,7 @@ open class SayanVanishAPI<U: User>(val useCache: Boolean) {
     }
 
     fun getUser(uniqueId: UUID): U? {
-        return databaseExecutor.getUser(uniqueId, useCache)
+        return databaseExecutor.getUser(uniqueId, useCache, type)
     }
 
     companion object {
