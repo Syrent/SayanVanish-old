@@ -21,11 +21,14 @@ interface User {
     }
 
     open fun sendMessage(content: Component) {
-
     }
 
     open fun sendActionbar(content: Component) {
 
+    }
+
+    open fun hasPermission(permission: String): Boolean {
+        return false
     }
 
 }

@@ -1,34 +1,32 @@
 package org.sayandevelopment.sayanvanish.bukkit
 
-import org.sayandevelopment.bukkit.StickyNotePlugin
-import org.sayandevelopment.core.database.sqlite.SQLiteDatabase
+import com.zaxxer.hikari.pool.HikariPool
 import org.sayandevelopment.sayanvanish.api.Platform
 import org.sayandevelopment.sayanvanish.api.User
 import org.sayandevelopment.sayanvanish.api.database.DatabaseConfig
 import org.sayandevelopment.sayanvanish.api.database.DatabaseExecutor
 import org.sayandevelopment.sayanvanish.api.database.DatabaseMethod
-import org.sayandevelopment.sayanvanish.bukkit.api.BukkitUser
+import org.sayandevelopment.stickynote.bukkit.StickyNotePlugin
+import org.sayandevelopment.stickynote.core.database.sqlite.SQLiteDatabase
 import java.io.File
-import java.util.*
 import java.util.logging.Logger
 
-class SayanVanish : StickyNotePlugin() {
+open class SayanVanish : StickyNotePlugin() {
+
+    val database = DatabaseExecutor<User>(
+        SQLiteDatabase(File("C:\\Server\\Paper", "storage.db"), Logger.getGlobal()),
+        DatabaseConfig(DatabaseMethod.SQLITE)
+    )
 
     override fun onEnable() {
         Platform.setPlatformId("bukkit")
+    }
+}
 
-        val database = DatabaseExecutor<User>(
-            SQLiteDatabase(File("C:\\Server\\Paper", "storage.db"), Logger.getGlobal()),
-            DatabaseConfig(DatabaseMethod.SQLITE)
-        )
-
-        val user = BukkitUser(UUID.randomUUID(), "SyrentTestBukkit")
-        database.connect()
-        database.initialize()
-        database.addUser(user)
-        database.getUser(user.uniqueId)
-        user.isVanished = true
-        database.updateUser(user)
-//        database.disconnect()
+fun main() {
+    try {
+        Class.forName("org.spongepowered.configurate.NodePath")
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }

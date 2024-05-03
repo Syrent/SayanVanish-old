@@ -1,18 +1,18 @@
 package org.sayandevelopment.sayanvanish.bukkit.api
 
-import org.sayandevelopment.sayanvanish.bukkit.utils.ComponentUtils.sendActionbar
-import org.sayandevelopment.sayanvanish.bukkit.utils.ComponentUtils.sendMessage
-import org.sayandevelopment.sayanvanish.api.exception.UnsupportedPlatformException
-import org.sayandevelopment.sayanvanish.api.User
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import org.bukkit.permissions.PermissibleBase
 import org.bukkit.permissions.PermissionAttachmentInfo
+import org.sayandevelopment.sayanvanish.api.User
+import org.sayandevelopment.sayanvanish.api.exception.UnsupportedPlatformException
+import org.sayandevelopment.stickynote.bukkit.utils.AdventureUtils.sendActionbar
+import org.sayandevelopment.stickynote.bukkit.utils.AdventureUtils.sendMessage
 import java.util.*
 
-class BukkitUser(
+open class BukkitUser(
     override val uniqueId: UUID,
     override val username: String
 ) : User {

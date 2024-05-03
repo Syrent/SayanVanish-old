@@ -1,22 +1,16 @@
 package org.sayandevelopment.sayanvanish.api.database
 
-import org.sayandevelopment.core.database.Query
 import org.sayandevelopment.sayanvanish.api.User
+import org.sayandevelopment.stickynote.core.database.Query
 import java.util.*
-import java.util.logging.Logger
 
 
 class DatabaseExecutor<U : User>(
-    val database: org.sayandevelopment.core.database.Database,
+    val database: org.sayandevelopment.stickynote.core.database.Database,
     val config: DatabaseConfig
 ) : Database<U> {
 
-    val type = DatabaseMethod.entries.find { it == config.method } ?: throw IllegalArgumentException(
-        "${config.method} is not a valid database method! valid methods: `${
-            DatabaseMethod.entries.joinToString(
-                ", "
-            )
-        }`"
+    val type = DatabaseMethod.entries.find { it == config.method } ?: throw IllegalArgumentException("${config.method} is not a valid database method! valid methods: `${DatabaseMethod.entries.joinToString(", ")}`"
     )
 
     override fun initialize() {
@@ -33,6 +27,7 @@ class DatabaseExecutor<U : User>(
 
     override fun getUser(uniqueId: UUID): U? {
         val result = database.runQuery(Query.query("SELECT * FROM ${config.tablePrefix}users WHERE UUID = ?;").setStatementValue(1, uniqueId.toString())).result ?: return null
+        if (!result.next()) return null
         return object : User {
             override val uniqueId: UUID = UUID.fromString(result.getString("UUID"))
             override val username: String = result.getString("username")
@@ -44,10 +39,7 @@ class DatabaseExecutor<U : User>(
     }
 
     override fun addUser(user: U) {
-        val result = database.runQuery(
-            Query.query("SELECT UUID FROM ${config.tablePrefix}users WHERE UUID = ?;")
-                .setStatementValue(1, user.uniqueId.toString())
-        ).result ?: throw NullPointerException("Couldn't get result for addUser database query")
+        val result = database.runQuery(Query.query("SELECT UUID FROM ${config.tablePrefix}users WHERE UUID = ?;").setStatementValue(1, user.uniqueId.toString())).result ?: throw NullPointerException("Couldn't get result for addUser database query")
         if (!result.next()) {
             database.runQuery(
                 Query.query("INSERT ${if (type == DatabaseMethod.MYSQL) "IGNORE " else ""}INTO ${config.tablePrefix}users (UUID, username, is_vanished, is_online, vanish_level) VALUES (?,?,?,?,?);")

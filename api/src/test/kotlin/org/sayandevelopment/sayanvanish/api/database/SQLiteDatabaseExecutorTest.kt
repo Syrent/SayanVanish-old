@@ -1,14 +1,13 @@
 package org.sayandevelopment.sayanvanish.api.database
 
 import net.kyori.adventure.text.Component
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
-import org.sayandevelopment.core.database.sqlite.SQLiteDatabase
 import org.sayandevelopment.sayanvanish.api.User
+import org.sayandevelopment.stickynote.core.database.sqlite.SQLiteDatabase
 import java.io.File
-import java.util.UUID
+import java.util.*
 import java.util.logging.Logger
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

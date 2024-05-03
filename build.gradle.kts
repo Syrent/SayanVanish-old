@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version "1.9.23"
     java
     `maven-publish`
     id("com.github.johnrengelman.shadow") version "8.1.1"
@@ -36,7 +36,18 @@ allprojects {
 }
 
 subprojects {
+    dependencies {
+        testImplementation(kotlin("test"))
+
+        testImplementation("org.xerial:sqlite-jdbc:3.45.3.0")
+        testImplementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
+    }
+
     tasks {
+        test {
+            useJUnitPlatform()
+        }
+
         build {
             dependsOn(shadowJar)
         }
@@ -46,7 +57,7 @@ subprojects {
             destinationDirectory.set(file(rootProject.projectDir.path + "/bin"))
             exclude("META-INF/**")
             from("LICENSE")
-//            minimize()
+            minimize()
         }
     }
 }
