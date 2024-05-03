@@ -4,11 +4,7 @@ import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
-import org.bukkit.permissions.PermissibleBase
-import org.bukkit.permissions.PermissionAttachmentInfo
-import org.sayandev.sayanvanish.api.Permission
 import org.sayandev.sayanvanish.api.User
-import org.sayandev.sayanvanish.api.exception.UnsupportedPlatformException
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.component
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.sendActionbar
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.sendMessage
@@ -16,7 +12,7 @@ import java.util.*
 
 open class BukkitUser(
     override val uniqueId: UUID,
-    override val username: String
+    override var username: String
 ) : User {
 
     override var isVanished = false

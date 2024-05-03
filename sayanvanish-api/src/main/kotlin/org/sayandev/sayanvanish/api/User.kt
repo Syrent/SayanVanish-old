@@ -8,7 +8,7 @@ import kotlin.reflect.KClass
 interface User {
 
     val uniqueId: UUID
-    val username: String
+    var username: String
 
     var isVanished: Boolean
     var isOnline: Boolean

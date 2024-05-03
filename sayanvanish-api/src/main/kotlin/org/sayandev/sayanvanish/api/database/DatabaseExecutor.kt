@@ -1,6 +1,5 @@
 package org.sayandev.sayanvanish.api.database
 
-import org.sayandev.sayanvanish.api.Platform
 import org.sayandev.sayanvanish.api.User
 import org.sayandev.sayanvanish.api.User.Companion.cast
 import org.sayandev.stickynote.core.database.Query
@@ -41,7 +40,7 @@ class DatabaseExecutor<U : User>(
         if (!result.next()) return null
         val user = object : User {
             override val uniqueId: UUID = UUID.fromString(result.getString("UUID"))
-            override val username: String = result.getString("username")
+            override var username: String = result.getString("username")
 
             override var isVanished: Boolean = result.getBoolean("is_vanished")
             override var isOnline: Boolean = result.getBoolean("is_online")
@@ -65,7 +64,7 @@ class DatabaseExecutor<U : User>(
         while (result.next()) {
             val user = object : User {
                 override val uniqueId: UUID = UUID.fromString(result.getString("UUID"))
-                override val username: String = result.getString("username")
+                override var username: String = result.getString("username")
 
                 override var isVanished: Boolean = result.getBoolean("is_vanished")
                 override var isOnline: Boolean = result.getBoolean("is_online")
