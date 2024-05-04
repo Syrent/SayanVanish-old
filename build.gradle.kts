@@ -10,7 +10,7 @@ plugins {
 
 allprojects {
     group = "org.sayandev"
-    version = "1.0.0-SNAPSHOT"
+    version = "1.0.0"
 
     plugins.apply("java-library")
     plugins.apply("maven-publish")
@@ -30,8 +30,6 @@ subprojects {
     java {
         withJavadocJar()
         withSourcesJar()
-
-        targetCompatibility = JavaVersion.VERSION_17
     }
 
     dependencies {
@@ -46,25 +44,20 @@ subprojects {
             archiveClassifier.set("unshaded")
         }
 
+        build {
+            dependsOn(shadowJar)
+        }
+
         withType<ShadowJar> {
             archiveFileName.set("${rootProject.name}-${version}-${this@subprojects.name.removePrefix("sayanvanish-")}.jar")
             archiveClassifier.set(null as String?)
             destinationDirectory.set(file(rootProject.projectDir.path + "/bin"))
-            include("*.kotlin_module")
             relocate("org.sayandev.stickynote", "org.sayandev.sayanvanish.lib.stickynote")
             from("LICENSE")
         }
 
         test {
             useJUnitPlatform()
-        }
-
-        build {
-            dependsOn(shadowJar)
-        }
-
-        withType<KotlinCompile> {
-            kotlinOptions.jvmTarget = "17"
         }
     }
 

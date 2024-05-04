@@ -1,3 +1,9 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+}
+
 rootProject.name = "SayanVanish"
 
 include("sayanvanish-api")
