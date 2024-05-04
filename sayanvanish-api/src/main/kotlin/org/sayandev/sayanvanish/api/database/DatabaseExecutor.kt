@@ -2,6 +2,7 @@ package org.sayandev.sayanvanish.api.database
 
 import org.sayandev.sayanvanish.api.User
 import org.sayandev.sayanvanish.api.User.Companion.cast
+import org.sayandev.sayanvanish.api.VanishOptions
 import org.sayandev.stickynote.core.database.Query
 import java.util.*
 import kotlin.reflect.KClass
@@ -41,6 +42,7 @@ class DatabaseExecutor<U : User>(
         val user = object : User {
             override val uniqueId: UUID = UUID.fromString(result.getString("UUID"))
             override var username: String = result.getString("username")
+            override var currentOptions: VanishOptions = VanishOptions.defaultOptions()
 
             override var isVanished: Boolean = result.getBoolean("is_vanished")
             override var isOnline: Boolean = result.getBoolean("is_online")
@@ -65,6 +67,7 @@ class DatabaseExecutor<U : User>(
             val user = object : User {
                 override val uniqueId: UUID = UUID.fromString(result.getString("UUID"))
                 override var username: String = result.getString("username")
+                override var currentOptions: VanishOptions = VanishOptions.defaultOptions()
 
                 override var isVanished: Boolean = result.getBoolean("is_vanished")
                 override var isOnline: Boolean = result.getBoolean("is_online")

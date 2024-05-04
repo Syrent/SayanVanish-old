@@ -13,6 +13,7 @@ import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.getOrA
 import org.sayandev.stickynote.bukkit.command.StickyCommand
 import org.sayandev.stickynote.bukkit.command.interfaces.SenderExtension
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.component
+import org.sayandev.stickynote.bukkit.utils.AdventureUtils.sendMessage
 import java.util.concurrent.CompletableFuture
 
 class SayanVanishCommand : StickyCommand("sayanvanish", "vanish") {

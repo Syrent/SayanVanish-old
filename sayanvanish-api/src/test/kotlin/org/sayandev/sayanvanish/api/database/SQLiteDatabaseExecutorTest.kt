@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.sayandev.sayanvanish.api.User
+import org.sayandev.sayanvanish.api.VanishOptions
 import org.sayandev.stickynote.core.database.sqlite.SQLiteDatabase
 import java.io.File
 import java.util.*
@@ -58,6 +59,7 @@ class SQLiteDatabaseExecutorTest {
                 object : User {
                     override val uniqueId = randomUUID
                     override var username = "SyrentTest"
+                    override var currentOptions: VanishOptions = VanishOptions.defaultOptions()
                     override var isVanished = false
                     override var isOnline = false
                     override var vanishLevel = 1

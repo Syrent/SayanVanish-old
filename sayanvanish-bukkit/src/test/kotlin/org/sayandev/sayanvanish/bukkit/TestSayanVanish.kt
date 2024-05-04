@@ -48,7 +48,7 @@ class TestSayanVanish {
         if (bukkitUser.isVanished) {
             assertTrue(bukkitUser.isVanished)
         } else {
-            if (bukkitUser.hasPermission(Permission.VANISH_ON_JOIN.permission())) {
+            if (bukkitUser.hasPermission(Permission.VANISH_ON_JOIN)) {
                 bukkitUser.isVanished = true
                 executor.addUser(bukkitUser)
                 assertTrue(executor.getUser(bukkitUser.uniqueId, false, BukkitUser::class)?.isVanished == true)

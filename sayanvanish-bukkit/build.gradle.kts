@@ -11,6 +11,9 @@ repositories {
 
     // MockBukkit
     maven("https://repo.papermc.io/repository/maven-public/")
+
+    // Brigadier
+    maven("https://libraries.minecraft.net")
 }
 
 dependencies {
@@ -22,6 +25,7 @@ dependencies {
     api(kotlin("reflect"))
 
     testImplementation("com.github.seeseemelk:MockBukkit-v1.20:3.9.0")
+    testImplementation("com.mojang:brigadier:1.0.18")
 }
 
 tasks {
