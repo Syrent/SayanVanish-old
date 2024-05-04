@@ -4,7 +4,3 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation("org.xerial:sqlite-jdbc:3.45.3.0")
 }
-
-tasks.test {
-    useJUnitPlatform()
-}
