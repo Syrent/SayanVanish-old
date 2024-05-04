@@ -8,7 +8,7 @@ plugins {
 }
 
 allprojects {
-    group = "org.sayndev"
+    group = "org.sayandev"
     version = "1.0.0-SNAPSHOT"
 
     plugins.apply("java")
