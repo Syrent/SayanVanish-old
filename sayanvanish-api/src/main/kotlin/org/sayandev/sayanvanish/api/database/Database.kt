@@ -1,7 +1,7 @@
 package org.sayandev.sayanvanish.api.database
 
 import org.sayandev.sayanvanish.api.User
-import java.util.UUID
+import java.util.*
 import kotlin.reflect.KClass
 
 interface Database<U: User> {
@@ -17,6 +17,7 @@ interface Database<U: User> {
     fun getUser(uniqueId: UUID, useCache: Boolean): U?
 
     fun getUsers(useCache: Boolean, type: KClass<out User>): List<U>
+
     fun getUsers(useCache: Boolean): List<U>
 
     fun updateUser(user: U)

@@ -1,6 +1,7 @@
 package org.sayandev.sayanvanish.bukkit
 
 import org.sayandev.sayanvanish.api.Platform
+import org.sayandev.sayanvanish.bukkit.command.SayanVanishCommand
 import org.sayandev.stickynote.bukkit.StickyNotePlugin
 import org.sayandev.stickynote.bukkit.pluginDirectory
 
@@ -10,6 +11,8 @@ open class SayanVanish : StickyNotePlugin() {
         Platform.setPlatform(Platform("bukkit", logger, pluginDirectory))
 
         VanishManager
+
+        SayanVanishCommand()
     }
 
 }

@@ -10,16 +10,35 @@ interface User {
     val uniqueId: UUID
     var username: String
 
+    var currentOptions: VanishOptions
     var isVanished: Boolean
     var isOnline: Boolean
     var vanishLevel: Int
 
-    fun vanish() {
+    fun vanish(options: VanishOptions) {
         isVanished = true
+        save()
+    }
+
+    fun vanish() {
+        vanish(VanishOptions.defaultOptions())
+    }
+
+    fun unVanish(options: VanishOptions) {
+        isVanished = false
+        save()
     }
 
     fun unVanish() {
-        isVanished = false
+        unVanish(VanishOptions.defaultOptions())
+    }
+
+    fun toggleVanish(options: VanishOptions) {
+        if (isVanished) unVanish(options) else vanish(options)
+    }
+
+    fun toggleVanish() {
+        toggleVanish(VanishOptions.defaultOptions())
     }
 
     open fun sendMessage(content: Component) {

@@ -70,7 +70,7 @@ class DatabaseExecutor<U : User>(
                 override var isOnline: Boolean = result.getBoolean("is_online")
                 override var vanishLevel: Int = result.getInt("vanish_level")
             }
-            users.add((user as? U) ?: user.cast(type) as U)
+            users.add((type.safeCast(user) as? U) ?: (user.cast(type) as U))
         }
         result.close()
         return users
@@ -112,14 +112,6 @@ class DatabaseExecutor<U : User>(
         database.runQuery(Query.query("DELETE FROM ${config.tablePrefix}users WHERE UUID = ?;").setStatementValue(1, uniqueId.toString()))
     }
 
-    override fun purgeCache() {
-        cache.clear()
-    }
-
-    override fun purge() {
-        database.runQuery(Query.query("DELETE FROM ${config.tablePrefix}users;"))
-    }
-
     override fun updateUser(user: U) {
         cache[user.uniqueId] = user
         database.queueQuery(
@@ -131,4 +123,13 @@ class DatabaseExecutor<U : User>(
                 .setStatementValue(5, user.uniqueId.toString())
         )
     }
+
+    override fun purgeCache() {
+        cache.clear()
+    }
+
+    override fun purge() {
+        database.runQuery(Query.query("DELETE FROM ${config.tablePrefix}users;"))
+    }
+
 }

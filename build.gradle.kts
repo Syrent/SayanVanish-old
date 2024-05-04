@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     kotlin("jvm") version "1.9.23"
     java
@@ -7,7 +9,7 @@ plugins {
 
 allprojects {
     group = "org.sayndev"
-    version = "1.0.0"
+    version = "1.0.0-SNAPSHOT"
 
     plugins.apply("java")
     plugins.apply("maven-publish")
@@ -25,6 +27,14 @@ allprojects {
     java {
         withJavadocJar()
         withSourcesJar()
+
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    tasks {
+        withType<KotlinCompile> {
+            kotlinOptions.jvmTarget = "17"
+        }
     }
 }
 
