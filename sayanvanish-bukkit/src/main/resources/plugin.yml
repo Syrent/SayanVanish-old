@@ -1,8 +1,8 @@
-name: 'SayanVanish'
-version: '1.0.0-SNAPSHOT'
+name: '${name}'
+version: '${version}'
 main: org.sayandev.sayanvanish.bukkit.SayanVanish
 api-version: 1.13
-prefix: SayanVanish
+prefix: '${name}'
 authors: [ Syrent ]
 description: '${description}'
-website: syrent.ir
+website: sayandev.org

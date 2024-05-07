@@ -3,6 +3,8 @@ package org.sayandev.sayanvanish.api
 import org.sayandev.sayanvanish.api.database.DatabaseConfig
 import org.sayandev.sayanvanish.api.database.DatabaseExecutor
 import org.sayandev.sayanvanish.api.database.DatabaseMethod
+import org.sayandev.stickynote.core.database.mysql.MySQLCredentials
+import org.sayandev.stickynote.core.database.mysql.MySQLDatabase
 import org.sayandev.stickynote.core.database.sqlite.SQLiteDatabase
 import java.io.File
 import java.util.*
@@ -13,7 +15,6 @@ open class SayanVanishAPI<U: User>(val type: KClass<out User>, val useCache: Boo
     constructor(): this(User::class)
 
     val databaseExecutor = DatabaseExecutor<U>(
-        SQLiteDatabase(File(Platform.get().rootDirectory, "storage.db"), Platform.get().logger),
         DatabaseConfig.fromConfig() ?: DatabaseConfig(DatabaseMethod.SQLITE)
     ).apply {
         this.connect()

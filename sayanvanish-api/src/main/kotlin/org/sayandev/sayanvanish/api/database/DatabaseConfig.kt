@@ -2,8 +2,8 @@ package org.sayandev.sayanvanish.api.database
 
 import org.sayandev.sayanvanish.api.Platform
 import org.sayandev.stickynote.core.configuration.Config
-import org.spongepowered.configurate.objectmapping.ConfigSerializable
-import org.spongepowered.configurate.objectmapping.meta.Setting
+import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.ConfigSerializable
+import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.meta.Setting
 import java.io.File
 
 @ConfigSerializable

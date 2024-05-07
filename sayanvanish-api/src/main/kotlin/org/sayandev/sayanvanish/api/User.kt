@@ -1,7 +1,7 @@
 package org.sayandev.sayanvanish.api
 
-import net.kyori.adventure.text.Component
 import org.sayandev.sayanvanish.api.exception.UnsupportedPlatformException
+import org.sayandev.stickynote.lib.kyori.adventure.text.Component
 import java.util.*
 import kotlin.reflect.KClass
 

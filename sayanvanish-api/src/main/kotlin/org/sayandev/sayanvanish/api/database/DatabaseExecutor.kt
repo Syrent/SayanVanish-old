@@ -1,20 +1,35 @@
 package org.sayandev.sayanvanish.api.database
 
+import org.sayandev.sayanvanish.api.Platform
 import org.sayandev.sayanvanish.api.User
 import org.sayandev.sayanvanish.api.User.Companion.cast
 import org.sayandev.sayanvanish.api.VanishOptions
 import org.sayandev.stickynote.core.database.Query
+import org.sayandev.stickynote.core.database.mysql.MySQLCredentials
+import org.sayandev.stickynote.core.database.mysql.MySQLDatabase
+import org.sayandev.stickynote.core.database.sqlite.SQLiteDatabase
+import java.io.File
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.safeCast
 
 
 class DatabaseExecutor<U : User>(
-    val database: org.sayandev.stickynote.core.database.Database,
     val config: DatabaseConfig
 ) : Database<U> {
 
     val cache = mutableMapOf<UUID, U>()
+    val database: org.sayandev.stickynote.core.database.Database = when (config.method.name.lowercase()) {
+        DatabaseMethod.MYSQL.name.lowercase() -> {
+            MySQLDatabase(MySQLCredentials.Companion.mySQLCredentials("localhost", 3306, "sayanvanish", false, "root", "admin"), 5)
+        }
+        DatabaseMethod.SQLITE.name.lowercase() -> {
+            SQLiteDatabase(File(Platform.get().rootDirectory, "storage.db"), Platform.get().logger)
+        }
+        else -> {
+            throw NullPointerException("Database method with id `${config.method.name}` doesn't exist, available database types: ${DatabaseMethod.entries.map { it.name.lowercase() }}")
+        }
+    }
 
     val type = DatabaseMethod.entries.find { it == config.method } ?: throw IllegalArgumentException("${config.method} is not a valid database method! valid methods: `${DatabaseMethod.entries.joinToString(", ")}`")
 
@@ -117,7 +132,7 @@ class DatabaseExecutor<U : User>(
 
     override fun updateUser(user: U) {
         cache[user.uniqueId] = user
-        database.queueQuery(
+        database.runQuery(
             Query.query("UPDATE ${config.tablePrefix}users SET username = ?, is_vanished = ?, is_online = ?, vanish_level = ? WHERE UUID = ?;")
                 .setStatementValue(1, user.username)
                 .setStatementValue(2, user.isVanished)

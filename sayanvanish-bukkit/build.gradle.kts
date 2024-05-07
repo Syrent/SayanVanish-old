@@ -17,11 +17,12 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.20.5-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.20.6-R0.1-SNAPSHOT")
 
-    implementation("org.sayandev:stickynote-bukkit:1.0.0")
+    implementation("org.sayandev:stickynote-core:1.0.7")
+    implementation("org.sayandev:stickynote-bukkit:1.0.7")
 
-    api(project(":sayanvanish-api"))
+    implementation(project(":sayanvanish-api"))
     api(kotlin("reflect"))
 
     testImplementation("com.github.seeseemelk:MockBukkit-v1.20:3.9.0")

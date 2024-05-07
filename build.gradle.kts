@@ -8,9 +8,12 @@ plugins {
     id("io.github.goooler.shadow") version "8.1.7"
 }
 
+val slug = "sayanvanish"
+description = "A modular vanish system for Minecraft servers"
+
 allprojects {
     group = "org.sayandev"
-    version = "1.0.0-beta.1"
+    version = "1.0.0-beta.2"
 
     plugins.apply("java-library")
     plugins.apply("maven-publish")
@@ -21,8 +24,24 @@ allprojects {
         mavenCentral()
         mavenLocal()
 
-        maven("https://repo.sayandev.org/snapshots")
-        maven("https://repo.sayandev.org/releases")
+        // Takenaka
+        maven("https://repo.screamingsandals.org/public")
+
+        /*maven("https://repo.sayandev.org/snapshots")
+        maven("https://repo.sayandev.org/releases")*/
+    }
+
+    tasks {
+        processResources {
+            filesMatching(listOf("**plugin.yml", "**plugin.json")) {
+                expand(
+                    "version" to project.version as String,
+                    "slug" to slug,
+                    "name" to rootProject.name,
+                    "description" to project.description
+                )
+            }
+        }
     }
 }
 
@@ -37,6 +56,7 @@ subprojects {
 
         testImplementation("org.xerial:sqlite-jdbc:3.45.3.0")
         testImplementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
+        compileOnly(kotlin("stdlib", version = "1.9.23"))
     }
 
     tasks {
@@ -54,6 +74,7 @@ subprojects {
             destinationDirectory.set(file(rootProject.projectDir.path + "/bin"))
             relocate("org.sayandev.stickynote", "org.sayandev.sayanvanish.lib.stickynote")
             from("LICENSE")
+//            minimize()
         }
 
         test {
@@ -117,7 +138,7 @@ subprojects {
 fun setPom(publication: MavenPublication) {
     publication.pom {
         name.set("sayanvanish")
-        description.set("A modular vanish system for Minecraft servers")
+        description.set(project.description)
         url.set("https://github.com/syrent/sayanvanish")
         licenses {
             license {

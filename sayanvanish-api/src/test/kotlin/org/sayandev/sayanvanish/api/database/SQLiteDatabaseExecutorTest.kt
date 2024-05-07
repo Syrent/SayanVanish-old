@@ -5,10 +5,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.sayandev.sayanvanish.api.User
 import org.sayandev.sayanvanish.api.VanishOptions
-import org.sayandev.stickynote.core.database.sqlite.SQLiteDatabase
-import java.io.File
 import java.util.*
-import java.util.logging.Logger
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -16,8 +13,7 @@ class SQLiteDatabaseExecutorTest {
 
     companion object {
         val executor = DatabaseExecutor<User>(
-            SQLiteDatabase(File.createTempFile("/sayanvanish", "storage.db"), Logger.getGlobal()),
-            DatabaseConfig(DatabaseMethod.SQLITE)
+            DatabaseConfig(DatabaseMethod.MYSQL, "localhost", 3306, "sayanvanish", "root", "admin")
         )
         val randomUUID = UUID.randomUUID()
     }

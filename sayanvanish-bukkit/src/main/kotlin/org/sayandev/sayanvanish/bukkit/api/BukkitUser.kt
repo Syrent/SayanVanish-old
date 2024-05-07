@@ -1,7 +1,5 @@
 package org.sayandev.sayanvanish.bukkit.api
 
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Creature
@@ -20,6 +18,8 @@ import org.sayandev.stickynote.bukkit.server
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.component
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.sendActionbar
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.sendMessage
+import org.sayandev.stickynote.lib.kyori.adventure.text.Component
+import org.sayandev.stickynote.lib.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import java.util.*
 
 open class BukkitUser(
