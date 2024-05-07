@@ -27,8 +27,8 @@ allprojects {
         // Takenaka
         maven("https://repo.screamingsandals.org/public")
 
-        /*maven("https://repo.sayandev.org/snapshots")
-        maven("https://repo.sayandev.org/releases")*/
+        maven("https://repo.sayandev.org/snapshots")
+        maven("https://repo.sayandev.org/releases")
     }
 
     tasks {
