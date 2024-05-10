@@ -21,7 +21,7 @@ class DatabaseExecutor<U : User>(
     val cache = mutableMapOf<UUID, U>()
     val database: org.sayandev.stickynote.core.database.Database = when (config.method.name.lowercase()) {
         DatabaseMethod.MYSQL.name.lowercase() -> {
-            MySQLDatabase(MySQLCredentials.Companion.mySQLCredentials("localhost", 3306, "sayanvanish", false, "root", "admin"), 5)
+            MySQLDatabase(MySQLCredentials.Companion.mySQLCredentials("localhost", 3306, "sayanvanish", false, "root", "admin"), 5, config.poolProperties.keepaliveTime, config.poolProperties.connectionTimeout)
         }
         DatabaseMethod.SQLITE.name.lowercase() -> {
             SQLiteDatabase(File(Platform.get().rootDirectory, "storage.db"), Platform.get().logger)
@@ -48,7 +48,7 @@ class DatabaseExecutor<U : User>(
     }
 
     override fun getUser(uniqueId: UUID, useCache: Boolean, type: KClass<out User>): U? {
-        if (useCache) {
+        if (useCache && cache.contains(uniqueId)) {
             return cache[uniqueId]
         }
 
@@ -72,9 +72,9 @@ class DatabaseExecutor<U : User>(
     }
 
     override fun getUsers(useCache: Boolean, type: KClass<out User>): List<U> {
-        if (useCache) {
+        /*if (useCache) {
             return cache.values.toList()
-        }
+        }*/
 
         val result = database.runQuery(Query.query("SELECT * FROM ${config.tablePrefix}users;")).result ?: return emptyList()
         val users = mutableListOf<U>()
@@ -91,6 +91,7 @@ class DatabaseExecutor<U : User>(
             users.add((type.safeCast(user) as? U) ?: (user.cast(type) as U))
         }
         result.close()
+
         return users
     }
 

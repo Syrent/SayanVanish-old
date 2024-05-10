@@ -5,6 +5,7 @@ import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Creature
 import org.bukkit.entity.Player
 import org.bukkit.metadata.FixedMetadataValue
+import org.bukkit.scoreboard.Team
 import org.sayandev.sayanvanish.api.Permission
 import org.sayandev.sayanvanish.api.User
 import org.sayandev.sayanvanish.api.VanishOptions
@@ -12,14 +13,16 @@ import org.sayandev.sayanvanish.bukkit.VanishManager
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.user
 import org.sayandev.sayanvanish.bukkit.api.event.BukkitUserUnVanishEvent
 import org.sayandev.sayanvanish.bukkit.api.event.BukkitUserVanishEvent
-import org.sayandev.stickynote.bukkit.onlinePlayers
-import org.sayandev.stickynote.bukkit.plugin
-import org.sayandev.stickynote.bukkit.server
+import org.sayandev.sayanvanish.bukkit.config.language
+import org.sayandev.sayanvanish.bukkit.config.settings
+import org.sayandev.stickynote.bukkit.*
+import org.sayandev.stickynote.bukkit.utils.AdventureUtils
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.component
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.sendActionbar
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.sendMessage
 import org.sayandev.stickynote.lib.kyori.adventure.text.Component
 import org.sayandev.stickynote.lib.kyori.adventure.text.minimessage.tag.resolver.Placeholder
+import xyz.jpenilla.squaremap.api.SquaremapProvider
 import java.util.*
 
 open class BukkitUser(
@@ -34,10 +37,8 @@ open class BukkitUser(
 
     fun stateText() = if (isVanished) "<green>ON</green>" else "<red>OFF</red>"
 
-    val player: Player?
-        get() = Bukkit.getPlayer(uniqueId)
-    val offlinePlayer: OfflinePlayer
-        get() = Bukkit.getOfflinePlayer(uniqueId)
+    fun player(): Player? = Bukkit.getPlayer(uniqueId)
+    fun offlinePlayer(): OfflinePlayer = Bukkit.getOfflinePlayer(uniqueId)
 
     override fun vanish(options: VanishOptions) {
         val vanishEvent = BukkitUserVanishEvent(this)
@@ -46,7 +47,7 @@ open class BukkitUser(
 
         super.vanish(options)
 
-        sendMessage("<gray>Your vanish state has been updated to <state>.".component(Placeholder.parsed("state", stateText())))
+        sendMessage(language.vanish.vanishStateUpdate.component(Placeholder.parsed("state", stateText())))
 
         if (options.sendMessage) {
             val quitMessage = VanishManager.generalQuitMessage
@@ -57,27 +58,37 @@ open class BukkitUser(
             }
         }
 
-        player?.isCollidable = false
-        player?.isSleepingIgnored = true
+        player()?.isCollidable = false
+        player()?.isSleepingIgnored = true
 
-        if (hasPermission(Permission.FLY)) {
-            player?.allowFlight = true
-            player?.isFlying = true
+        if (hasPermission(Permission.FLY) || settings.vanish.fly.enabled) {
+            player()?.allowFlight = true
+            player()?.isFlying = true
         }
-        if (hasPermission(Permission.INVULNERABLE)) {
-            player?.isInvulnerable = true
+        if (hasPermission(Permission.INVULNERABLE) || settings.vanish.invulnerability.enabled) {
+            player()?.isInvulnerable = true
         }
 
-        player?.world?.entities?.stream()
-            ?.filter { entity -> entity is Creature }
-            ?.map { entity -> entity as Creature }
-            ?.filter { mob -> mob.target != null }
-            ?.filter { mob -> player?.uniqueId == mob.target?.uniqueId }
-            ?.forEach { mob -> mob.target = null }
+        if (settings.vanish.prevention.push) {
+            denyPush()
+        }
 
-        player?.setMetadata("vanished", FixedMetadataValue(plugin, true))
+        if (settings.vanish.prevention.mobTarget) {
+            player()?.world?.entities?.stream()
+                ?.filter { entity -> entity is Creature }
+                ?.map { entity -> entity as Creature }
+                ?.filter { mob -> mob.target != null }
+                ?.filter { mob -> player()?.uniqueId == mob.target?.uniqueId }
+                ?.forEach { mob -> mob.target = null }
+        }
+
+        player()?.setMetadata("vanished", FixedMetadataValue(plugin, true))
 
         hideUser()
+
+        if (hasPlugin("squaremap")) {
+            player()?.uniqueId?.let { SquaremapProvider.get().playerManager().hide(it, true) }
+        }
         currentOptions = options
     }
 
@@ -88,7 +99,7 @@ open class BukkitUser(
 
         super.unVanish(options)
 
-        sendMessage("<gray>Your vanish state has been updated to <state>.".component(Placeholder.parsed("state", stateText())))
+        sendMessage(language.vanish.vanishStateUpdate.component(Placeholder.parsed("state", stateText())))
 
         if (options.sendMessage) {
             val joinMessage = VanishManager.generalJoinMessage
@@ -99,32 +110,42 @@ open class BukkitUser(
             }
         }
 
-        player?.isCollidable = true
-        player?.isSleepingIgnored = false
+        player()?.isCollidable = true
+        player()?.isSleepingIgnored = false
 
-        if (!hasPermission(Permission.FLY)) {
-            player?.allowFlight = false
-            player?.isFlying = false
+        if (!hasPermission(Permission.FLY) && settings.vanish.fly.disableOnReappear) {
+            player()?.allowFlight = false
+            player()?.isFlying = false
         }
-        if (hasPermission(Permission.INVULNERABLE)) {
-            player?.isInvulnerable = false
+        if (hasPermission(Permission.INVULNERABLE) || settings.vanish.invulnerability.disableOnReappear) {
+            player()?.isInvulnerable = false
         }
 
-        player?.setMetadata("vanished", FixedMetadataValue(plugin, false))
+        if (settings.vanish.prevention.push) {
+            allowPush()
+        }
+
+        player()?.sendActionbar(Component.empty())
+
+        player()?.setMetadata("vanished", FixedMetadataValue(plugin, false))
         showUser()
+
+        if (hasPlugin("squaremap")) {
+            player()?.uniqueId?.let { SquaremapProvider.get().playerManager().show(it, true) }
+        }
         currentOptions = options
     }
 
     override fun hasPermission(permission: String): Boolean {
-        return player?.hasPermission(permission) ?: false
+        return player()?.hasPermission(permission) ?: false
     }
 
     override fun sendMessage(content: Component) {
-        player?.sendMessage(content)
+        player()?.sendMessage(content)
     }
 
     override fun sendActionbar(content: Component) {
-        player?.sendActionbar(content)
+        player()?.sendActionbar(content)
     }
 
     fun hideUser() {
@@ -135,8 +156,8 @@ open class BukkitUser(
 
     fun hideUser(target: Player) {
         val playerVanishLevel = target.user()?.vanishLevel ?: 0
-        if (playerVanishLevel < vanishLevel) {
-            player?.let { target.hidePlayer(plugin, it) }
+        if (playerVanishLevel < vanishLevel || !settings.vanish.level.enabled) {
+            player()?.let { target.hidePlayer(plugin, it) }
         }
     }
 
@@ -147,10 +168,22 @@ open class BukkitUser(
     }
 
     fun showUser(target: Player) {
-        val playerVanishLevel = target.user()?.vanishLevel ?: 0
-        if (playerVanishLevel < vanishLevel) {
-            player?.let { target.showPlayer(plugin, it) }
+        player()?.let { target.showPlayer(plugin, it) }
+    }
+
+    fun denyPush() {
+        val player = player() ?: return
+        var team = player.scoreboard.getTeam("Vanished")
+        if (team == null) {
+            team = player.scoreboard.registerNewTeam("Vanished")
         }
+        team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER)
+        team.addEntry(player.name)
+    }
+
+    fun allowPush() {
+        val player = player() ?: return
+        player.scoreboard.getTeam("Vanished")?.removeEntry(player.name)
     }
 
     companion object {

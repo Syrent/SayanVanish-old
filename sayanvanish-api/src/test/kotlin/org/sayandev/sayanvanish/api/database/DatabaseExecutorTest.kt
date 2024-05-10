@@ -9,7 +9,7 @@ import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-class SQLiteDatabaseExecutorTest {
+class DatabaseExecutorTest {
 
     companion object {
         val executor = DatabaseExecutor<User>(

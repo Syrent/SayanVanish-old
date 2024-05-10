@@ -1,5 +1,6 @@
 plugins {
     id("xyz.jpenilla.run-paper") version "2.3.0"
+    id("io.papermc.paperweight.userdev") version "1.7.0"
 }
 
 repositories {
@@ -14,16 +15,26 @@ repositories {
 
     // Brigadier
     maven("https://libraries.minecraft.net")
+
+    // Paper
+    maven("https://repo.papermc.io/repository/maven-public/")
+
+    // EssentialsX
+    maven("https://repo.essentialsx.net/releases/")
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.20.6-R0.1-SNAPSHOT")
+//    compileOnly("org.spigotmc:spigot-api:1.20.6-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.20.4-R0.1-SNAPSHOT")
 
-    implementation("org.sayandev:stickynote-core:1.0.7")
-    implementation("org.sayandev:stickynote-bukkit:1.0.7")
+    implementation("org.sayandev:stickynote-core:1.0.18")
+    implementation("org.sayandev:stickynote-bukkit:1.0.18")
 
     implementation(project(":sayanvanish-api"))
     api(kotlin("reflect"))
+
+    compileOnly("net.essentialsx:EssentialsX:2.20.1")
+    compileOnly("xyz.jpenilla:squaremap-api:1.2.3")
 
     testImplementation("com.github.seeseemelk:MockBukkit-v1.20:3.9.0")
     testImplementation("com.mojang:brigadier:1.0.18")
@@ -31,7 +42,7 @@ dependencies {
 
 tasks {
     runServer {
-        minecraftVersion("1.20.6")
+        minecraftVersion("1.20.4")
 
         downloadPlugins {
             url("https://download.luckperms.net/1539/bukkit/loader/LuckPerms-Bukkit-5.4.126.jar")

@@ -2,12 +2,16 @@ package org.sayandev.sayanvanish.bukkit.command
 
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
+import org.sayandev.sayanvanish.api.SayanVanishAPI
 import org.sayandev.sayanvanish.api.VanishOptions
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.getOrAddUser
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.user
+import org.sayandev.sayanvanish.bukkit.config.LanguageConfig
+import org.sayandev.sayanvanish.bukkit.config.SettingsConfig
+import org.sayandev.sayanvanish.bukkit.config.language
+import org.sayandev.sayanvanish.bukkit.config.settings
 import org.sayandev.stickynote.bukkit.command.StickyCommand
 import org.sayandev.stickynote.bukkit.command.interfaces.SenderExtension
-import org.sayandev.stickynote.bukkit.onlinePlayers
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.component
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.sendMessage
 import org.sayandev.stickynote.lib.incendo.cloud.bukkit.parser.OfflinePlayerParser
@@ -42,9 +46,7 @@ class SayanVanishCommand : StickyCommand("sayanvanish", "vanish") {
                 return@handler
             }
 
-            val player =
-                if (target.isPresent) context.optional<OfflinePlayer>("player").get() else context.sender().player()
-                    ?: return@handler
+            val player = if (target.isPresent) context.optional<OfflinePlayer>("player").get() else context.sender().player() ?: return@handler
             val user = player.getOrAddUser()
 
             val options = VanishOptions.defaultOptions().apply {
@@ -61,9 +63,9 @@ class SayanVanishCommand : StickyCommand("sayanvanish", "vanish") {
 
             if (target.isPresent) {
                 if (!player.isOnline) {
-                    sender.sendMessage("<gray><gold><player></gold> is currently offline. The vanish state has been updated to <state> and will take effect upon their return.".component(Placeholder.unparsed("player", player.name ?: "N/A"), Placeholder.parsed("state", user.stateText())))
+                    sender.sendMessage(language.vanish.offlineOnVanish.component(Placeholder.unparsed("player", player.name ?: "N/A"), Placeholder.parsed("state", user.stateText())))
                 } else {
-                    sender.sendMessage("<gray>The vanish state of <gold><player></gold> has been updated to <state>.".component(Placeholder.unparsed("player", player.name ?: "N/A"), Placeholder.parsed("state", user.stateText())))
+                    sender.sendMessage(language.vanish.vanishStateOther.component(Placeholder.unparsed("player", player.name ?: "N/A"), Placeholder.parsed("state", user.stateText())))
                 }
             }
         }
@@ -84,8 +86,10 @@ class SayanVanishCommand : StickyCommand("sayanvanish", "vanish") {
             .permission(constructBasePermission("reload"))
             .handler { context ->
                 val sender = context.sender().bukkitSender()
-                // TODO: Reload config
-                sender.sendMessage("<green>Plugin successfully reloaded!".component())
+                language = LanguageConfig.fromConfig() ?: LanguageConfig.defaultConfig()
+                settings = SettingsConfig.fromConfig() ?: SettingsConfig.defaultConfig()
+                SayanVanishAPI.getInstance().databaseExecutor.config.reload()
+                sender.sendMessage(language.general.reloaded.component())
             }
             .build())
 
@@ -103,7 +107,7 @@ class SayanVanishCommand : StickyCommand("sayanvanish", "vanish") {
                 val target = context.get<OfflinePlayer>("player")
 
                 if (!target.hasPlayedBefore()) {
-                    sender.sendMessage("<red>Player not found".component())
+                    sender.sendMessage(language.general.playerNotFound.component())
                     return@handler
                 }
 
@@ -111,7 +115,7 @@ class SayanVanishCommand : StickyCommand("sayanvanish", "vanish") {
                 user.vanishLevel = context.get("level")
                 user.save()
 
-                sender.sendMessage("<gray>Vanish level set to <gold><level></gold>".component(Placeholder.unparsed("level", user.vanishLevel.toString())))
+                sender.sendMessage(language.vanish.levelSet.component(Placeholder.unparsed("level", user.vanishLevel.toString())))
             }
             .build())
 
@@ -124,13 +128,13 @@ class SayanVanishCommand : StickyCommand("sayanvanish", "vanish") {
                 val target = context.get<OfflinePlayer>("player")
 
                 if (!target.hasPlayedBefore()) {
-                    sender.sendMessage("<red>Player not found".component())
+                    sender.sendMessage(language.general.playerNotFound.component())
                     return@handler
                 }
 
                 val user = target.user()
 
-                sender.sendMessage("<gray><gold><player></gold> vanish level is <gold><level></gold>".component(Placeholder.unparsed("player", target.name ?: "N/A"), Placeholder.unparsed("level", (user?.vanishLevel ?: 0).toString())))
+                sender.sendMessage(language.vanish.levelGet.component(Placeholder.unparsed("player", target.name ?: "N/A"), Placeholder.unparsed("level", (user?.vanishLevel ?: 0).toString())))
             }
             .build())
     }

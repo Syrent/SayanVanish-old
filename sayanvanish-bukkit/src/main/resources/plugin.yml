@@ -6,3 +6,10 @@ prefix: '${name}'
 authors: [ Syrent ]
 description: '${description}'
 website: sayandev.org
+softdepend:
+  - Essentials
+  - squaremap
+  - LuckPerms
+  - Dynmap
+  - PlaceholderAPI
+  - Citizens

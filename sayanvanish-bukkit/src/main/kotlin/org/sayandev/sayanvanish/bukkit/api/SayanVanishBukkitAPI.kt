@@ -2,6 +2,7 @@ package org.sayandev.sayanvanish.bukkit.api
 
 import org.sayandev.sayanvanish.api.SayanVanishAPI
 import org.bukkit.OfflinePlayer
+import org.sayandev.sayanvanish.api.database.databaseConfig
 import org.sayandev.stickynote.bukkit.warn
 import java.util.*
 
@@ -12,15 +13,15 @@ class SayanVanishBukkitAPI(useCache: Boolean) : SayanVanishAPI<BukkitUser>(Bukki
         }
 
         fun getInstance(): SayanVanishAPI<BukkitUser> {
-            return getInstance(false)
+            return getInstance(databaseConfig.useCacheWhenAvailable)
         }
 
         fun UUID.user(): BukkitUser? {
             return getInstance().getUser(this)
         }
 
-        fun OfflinePlayer.user(): BukkitUser? {
-            return getInstance().getUser(this.uniqueId)
+        fun OfflinePlayer.user(useCache: Boolean = databaseConfig.useCacheWhenAvailable): BukkitUser? {
+            return getInstance(useCache).getUser(this.uniqueId)
         }
 
         fun OfflinePlayer.getOrCreateUser(): BukkitUser {

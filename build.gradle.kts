@@ -13,7 +13,7 @@ description = "A modular vanish system for Minecraft servers"
 
 allprojects {
     group = "org.sayandev"
-    version = "1.0.0-beta.2"
+    version = "1.0.0-beta.3"
 
     plugins.apply("java-library")
     plugins.apply("maven-publish")
@@ -35,10 +35,10 @@ allprojects {
         processResources {
             filesMatching(listOf("**plugin.yml", "**plugin.json")) {
                 expand(
-                    "version" to project.version as String,
+                    "version" to rootProject.version as String,
                     "slug" to slug,
                     "name" to rootProject.name,
-                    "description" to project.description
+                    "description" to rootProject.description
                 )
             }
         }
@@ -49,6 +49,8 @@ subprojects {
     java {
         withJavadocJar()
         withSourcesJar()
+
+        toolchain.languageVersion.set(JavaLanguageVersion.of(17))
     }
 
     dependencies {
@@ -64,6 +66,10 @@ subprojects {
             archiveClassifier.set("unshaded")
         }
 
+        kotlin {
+            jvmToolchain(17)
+        }
+
         build {
             dependsOn(shadowJar)
         }
@@ -74,7 +80,7 @@ subprojects {
             destinationDirectory.set(file(rootProject.projectDir.path + "/bin"))
             relocate("org.sayandev.stickynote", "org.sayandev.sayanvanish.lib.stickynote")
             from("LICENSE")
-//            minimize()
+            minimize()
         }
 
         test {

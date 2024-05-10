@@ -1,12 +1,7 @@
 package org.sayandev.sayanvanish.api
 
-import org.sayandev.sayanvanish.api.database.DatabaseConfig
 import org.sayandev.sayanvanish.api.database.DatabaseExecutor
-import org.sayandev.sayanvanish.api.database.DatabaseMethod
-import org.sayandev.stickynote.core.database.mysql.MySQLCredentials
-import org.sayandev.stickynote.core.database.mysql.MySQLDatabase
-import org.sayandev.stickynote.core.database.sqlite.SQLiteDatabase
-import java.io.File
+import org.sayandev.sayanvanish.api.database.databaseConfig
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -14,9 +9,7 @@ open class SayanVanishAPI<U: User>(val type: KClass<out User>, val useCache: Boo
     constructor(type: KClass<out User>): this(type, false)
     constructor(): this(User::class)
 
-    val databaseExecutor = DatabaseExecutor<U>(
-        DatabaseConfig.fromConfig() ?: DatabaseConfig(DatabaseMethod.SQLITE)
-    ).apply {
+    val databaseExecutor = DatabaseExecutor<U>(databaseConfig).apply {
         this.connect()
         this.initialize()
     }

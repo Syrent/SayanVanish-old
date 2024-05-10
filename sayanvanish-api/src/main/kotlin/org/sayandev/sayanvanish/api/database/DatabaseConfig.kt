@@ -6,6 +6,8 @@ import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.Confi
 import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.meta.Setting
 import java.io.File
 
+val databaseConfig = DatabaseConfig.fromConfig() ?: DatabaseConfig.defaultConfig()
+
 @ConfigSerializable
 data class DatabaseConfig(
     val method: DatabaseMethod = DatabaseMethod.SQLITE,
@@ -15,8 +17,9 @@ data class DatabaseConfig(
     val username: String = "minecraft",
     val password: String = "",
     val poolProperties: PoolProperties = PoolProperties(),
-    val tablePrefix: String = "sayanvanish_"
-) : Config(Platform.get().rootDirectory, FILE_NAME) {
+    val tablePrefix: String = "sayanvanish_",
+    val useCacheWhenAvailable: Boolean = true,
+) : Config(Platform.get().rootDirectory, fileName) {
 
     init {
         load()
@@ -27,13 +30,13 @@ data class DatabaseConfig(
         val maximumPoolSize: Int = 10,
         val minimumIdle: Int = 10,
         val maximumLifetime: Long = 1800000,
-        val keepaliveTime: Int = 0,
-        val connectionTimeout: Int = 5000,
+        val keepaliveTime: Long = 0,
+        val connectionTimeout: Long = 5000,
         @Setting("use-ssl") val useSSL: Boolean = false
     )
 
     companion object {
-        private val FILE_NAME = "database.yml"
+        private val fileName = "database.yml"
 
         @JvmStatic
         fun defaultConfig(): DatabaseConfig {
@@ -42,7 +45,7 @@ data class DatabaseConfig(
 
         @JvmStatic
         fun fromConfig(): DatabaseConfig? {
-            return fromConfig<DatabaseConfig>(File(Platform.get().rootDirectory, FILE_NAME))
+            return fromConfig<DatabaseConfig>(File(Platform.get().rootDirectory, fileName))
         }
     }
 
