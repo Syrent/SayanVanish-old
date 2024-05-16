@@ -13,7 +13,7 @@ description = "A modular vanish system for Minecraft servers"
 
 allprojects {
     group = "org.sayandev"
-    version = "1.0.0-beta.3"
+    version = "1.0.0-beta.4"
 
     plugins.apply("java-library")
     plugins.apply("maven-publish")
