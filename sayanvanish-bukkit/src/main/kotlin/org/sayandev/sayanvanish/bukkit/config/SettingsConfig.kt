@@ -1,6 +1,8 @@
 package org.sayandev.sayanvanish.bukkit.config
 
 import org.bukkit.potion.PotionEffectType
+import org.sayandev.sayanvanish.api.feature.Feature
+import org.sayandev.sayanvanish.api.feature.Features
 import org.sayandev.stickynote.bukkit.pluginDirectory
 import org.sayandev.stickynote.core.configuration.Config
 import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.ConfigSerializable
@@ -29,7 +31,9 @@ data class SettingsConfig(
         val remember: Boolean = true,
         val seeAsSpectator: Boolean = true, // TODO
         val effects: List<String> = listOf(PotionEffectType.NIGHT_VISION.key.key), // TODO
+//        val features: List<Feature> = Features.features(),
         val level: Level = Level(),
+        val sneakToggleGameMode: Boolean = true,
         val actionbar: Actionbar = Actionbar(),
         val state: State = State(),
         val fly: Fly = Fly(),

@@ -4,6 +4,7 @@ import com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent
 import net.ess3.api.events.AfkStatusChangeEvent
 import net.ess3.api.events.PrivateMessagePreSendEvent
+import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -15,21 +16,26 @@ import org.bukkit.event.block.BlockReceiveGameEvent
 import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityPickupItemEvent
+import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerAdvancementDoneEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.event.player.PlayerToggleSneakEvent
 import org.bukkit.event.raid.RaidTriggerEvent
 import org.sayandev.sayanvanish.api.Permission
 import org.sayandev.sayanvanish.api.VanishOptions
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.getOrCreateUser
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.user
+import org.sayandev.sayanvanish.bukkit.config.language
 import org.sayandev.sayanvanish.bukkit.config.settings
 import org.sayandev.stickynote.bukkit.*
 import org.sayandev.stickynote.bukkit.event.registerListener
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.component
 import org.sayandev.stickynote.lib.xseries.xseries.ReflectionUtils
+import java.util.*
 
 object VanishManager : Listener {
 
@@ -144,6 +150,7 @@ object VanishManager : Listener {
         }
     }
 
+    // TODO: Holding this until configuration support kotlin abstraction deserialization
     private fun registerPreventions() {
         registerListener<EntityPickupItemEvent> { event ->
             val user = (event.entity as? Player)?.user() ?: return@registerListener
@@ -177,7 +184,7 @@ object VanishManager : Listener {
             registerListener<PlayerAdvancementDoneEvent> { event ->
                 val user = event.player.user() ?: return@registerListener
                 if (user.isVanished && settings.vanish.prevention.advancement) {
-                    event.message(null)
+//                    event.message(null)
                     for (criteria in event.advancement.criteria) {
                         event.player.getAdvancementProgress(event.advancement).revokeCriteria(criteria)
                     }
@@ -242,6 +249,40 @@ object VanishManager : Listener {
                     event.sender.sendMessage(com.earth2me.essentials.I18n.tl("errorWithMessage", com.earth2me.essentials.I18n.tl("playerNotFound")))
                     event.isCancelled = true
                 }
+            }
+        }
+
+        val sneakMap = mutableMapOf<Player, GameMode>()
+        val sneakList = mutableListOf<Player>()
+        registerListener<PlayerToggleSneakEvent> { event ->
+            val player = event.player
+            if (!player.isSneaking || player.user()?.isVanished != true || !settings.vanish.sneakToggleGameMode) return@registerListener
+            if (sneakList.contains(player)) {
+                if (player.gameMode == GameMode.SPECTATOR) {
+                    player.gameMode = sneakMap[player]!!
+                } else {
+                    sneakMap[player] = player.gameMode
+                    player.gameMode = GameMode.SPECTATOR
+                }
+            } else {
+                if (player.gameMode != GameMode.SPECTATOR) {
+                    sneakMap[player] = player.gameMode
+                }
+                sneakList.add(player)
+                runSync({
+                    sneakList.remove(player)
+                }, 8)
+            }
+        }
+        registerListener<AsyncPlayerChatEvent> { event ->
+            val user = event.player.user() ?: return@registerListener
+            if (!user.isVanished) return@registerListener
+            val message = event.message
+            if (message.startsWith("!")) {
+                event.message = message.removePrefix("!")
+            } else {
+                user.sendMessage(language.vanish.cantChatWhileVanished.component())
+                event.isCancelled = true
             }
         }
     }

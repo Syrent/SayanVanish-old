@@ -21,14 +21,18 @@ repositories {
 
     // EssentialsX
     maven("https://repo.essentialsx.net/releases/")
+
+    // libby
+    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
 }
 
 dependencies {
 //    compileOnly("org.spigotmc:spigot-api:1.20.6-R0.1-SNAPSHOT")
     paperweight.paperDevBundle("1.20.4-R0.1-SNAPSHOT")
 
-    implementation("org.sayandev:stickynote-core:1.0.19")
-    implementation("org.sayandev:stickynote-bukkit:1.0.19")
+    compileOnly("org.sayandev:stickynote-core:1.0.22")
+    compileOnly("org.sayandev:stickynote-bukkit:1.0.22")
+    implementation("com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT")
 
     implementation(project(":sayanvanish-api"))
     api(kotlin("reflect"))

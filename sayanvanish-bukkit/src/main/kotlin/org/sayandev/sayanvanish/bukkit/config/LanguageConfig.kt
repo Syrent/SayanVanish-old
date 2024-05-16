@@ -28,6 +28,7 @@ data class LanguageConfig(
         val vanishStateUpdate: String = "<gray>Your vanish state has been updated to <state>.",
         val offlineOnVanish: String = "<gray><gold><player></gold> is currently offline. The vanish state has been updated to <state> and will take effect upon their return.",
         val vanishStateOther: String = "<gray>The vanish state of <gold><player></gold> has been updated to <state>.",
+        val cantChatWhileVanished: String = "<gray>You can't chat while you are vanished, add <gold><bold>!</bold></gold> at the beginning of your message to bypass this.",
         val levelSet: String = "<gray>Vanish level set to <gold><level></gold>",
         val levelGet: String = "<gray><gold><player></gold> vanish level is <gold><level></gold>",
     )
