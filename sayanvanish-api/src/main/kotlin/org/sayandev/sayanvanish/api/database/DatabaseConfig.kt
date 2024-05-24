@@ -6,7 +6,7 @@ import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.Confi
 import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.meta.Setting
 import java.io.File
 
-val databaseConfig = DatabaseConfig.fromConfig() ?: DatabaseConfig.defaultConfig()
+public val databaseConfig = DatabaseConfig.fromConfig() ?: DatabaseConfig.defaultConfig()
 
 @ConfigSerializable
 data class DatabaseConfig(

@@ -4,9 +4,7 @@ import org.bukkit.event.Listener
 import org.sayandev.sayanvanish.api.feature.Feature
 import org.sayandev.stickynote.bukkit.registerListener
 import org.sayandev.stickynote.bukkit.unregisterListener
-import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.ConfigSerializable
 
-@ConfigSerializable
 abstract class ListenedFeature(id: String) : Feature(id), Listener {
 
     override fun enable() {

@@ -42,9 +42,10 @@ open class BukkitUser(
     fun offlinePlayer(): OfflinePlayer = Bukkit.getOfflinePlayer(uniqueId)
 
     override fun vanish(options: VanishOptions) {
-        val vanishEvent = BukkitUserVanishEvent(this)
+        val vanishEvent = BukkitUserVanishEvent(this, options)
         server.pluginManager.callEvent(vanishEvent)
         if (vanishEvent.isCancelled) return
+        val options = vanishEvent.options
 
         if (options.sendMessage) {
             val quitMessage = VanishManager.generalQuitMessage
@@ -94,9 +95,10 @@ open class BukkitUser(
     }
 
     override fun unVanish(options: VanishOptions) {
-        val unVanishEvent = BukkitUserUnVanishEvent(this)
+        val unVanishEvent = BukkitUserUnVanishEvent(this, options)
         server.pluginManager.callEvent(unVanishEvent)
         if (unVanishEvent.isCancelled) return
+        val options = unVanishEvent.options
 
         if (options.sendMessage) {
             val joinMessage = VanishManager.generalJoinMessage

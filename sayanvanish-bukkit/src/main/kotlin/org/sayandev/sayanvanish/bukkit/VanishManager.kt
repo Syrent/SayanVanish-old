@@ -2,6 +2,7 @@ package org.sayandev.sayanvanish.bukkit
 
 import com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent
+import net.citizensnpcs.api.ai.speech.event.SpeechEvent
 import net.ess3.api.events.AfkStatusChangeEvent
 import net.ess3.api.events.PrivateMessagePreSendEvent
 import org.bukkit.GameMode
@@ -286,5 +287,4 @@ object VanishManager : Listener {
             }
         }
     }
-
 }

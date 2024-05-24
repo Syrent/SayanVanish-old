@@ -1,17 +1,23 @@
 package org.sayandev.sayanvanish.bukkit.command
 
 import org.bukkit.OfflinePlayer
+import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.sayandev.sayanvanish.api.SayanVanishAPI
 import org.sayandev.sayanvanish.api.VanishOptions
+import org.sayandev.sayanvanish.api.database.databaseConfig
+import org.sayandev.sayanvanish.api.utils.Paste
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.getOrAddUser
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.user
 import org.sayandev.sayanvanish.bukkit.config.LanguageConfig
 import org.sayandev.sayanvanish.bukkit.config.SettingsConfig
 import org.sayandev.sayanvanish.bukkit.config.language
 import org.sayandev.sayanvanish.bukkit.config.settings
+import org.sayandev.sayanvanish.bukkit.utils.ServerUtils
 import org.sayandev.stickynote.bukkit.command.StickyCommand
 import org.sayandev.stickynote.bukkit.command.interfaces.SenderExtension
+import org.sayandev.stickynote.bukkit.runAsync
+import org.sayandev.stickynote.bukkit.runSync
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.component
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.sendMessage
 import org.sayandev.stickynote.lib.incendo.cloud.bukkit.parser.OfflinePlayerParser
@@ -82,6 +88,33 @@ class SayanVanishCommand : StickyCommand("sayanvanish", "vanish") {
             .build())
 
         manager.command(builder
+            .literal("paste")
+            .permission(constructBasePermission("paste"))
+            .handler { context ->
+                val sender = context.sender().bukkitSender()
+                sender.sendMessage(language.paste.generating.component())
+                runAsync {
+                    Paste("yaml", SettingsConfig.settingsFile.readLines()).post().whenComplete { settingsKey, settingsError ->
+                        sendPasteError(sender, settingsError)
+
+                        Paste("json", listOf(ServerUtils.getServerData(
+                            mapOf(
+                                "settings.yml" to "${Paste.PASTE_URL}/$settingsKey",
+                                "database-type" to databaseConfig.method.toString()
+                            )))
+                        ).post().whenComplete { key, generalError ->
+                            sendPasteError(sender, generalError)
+
+                            runSync {
+                                sender.sendMessage(language.paste.use.replace("<key>", key ?: "N/A").component())
+                            }
+                        }
+                    }
+                }
+            }
+            .build())
+
+        manager.command(builder
             .literal("reload")
             .permission(constructBasePermission("reload"))
             .handler { context ->
@@ -137,5 +170,14 @@ class SayanVanishCommand : StickyCommand("sayanvanish", "vanish") {
                 sender.sendMessage(language.vanish.levelGet.component(Placeholder.unparsed("player", target.name ?: "N/A"), Placeholder.unparsed("level", (user?.vanishLevel ?: 0).toString())))
             }
             .build())
+    }
+
+    fun sendPasteError(sender: CommandSender, error: Throwable?) {
+        if (error != null) {
+            runSync {
+                sender.sendMessage(language.paste.failedToGenerate.component())
+            }
+            error.printStackTrace()
+        }
     }
 }

@@ -2,19 +2,28 @@ package org.sayandev.sayanvanish.bukkit.config
 
 import org.bukkit.potion.PotionEffectType
 import org.sayandev.sayanvanish.api.feature.Feature
+import org.sayandev.sayanvanish.api.feature.FeatureTypeSerializer
 import org.sayandev.sayanvanish.api.feature.Features
+import org.sayandev.sayanvanish.bukkit.feature.features.FeaturePreventPickup
 import org.sayandev.stickynote.bukkit.pluginDirectory
 import org.sayandev.stickynote.core.configuration.Config
 import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.ConfigSerializable
+import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.meta.Setting
+import org.sayandev.stickynote.lib.spongepowered.configurate.serialize.TypeSerializer
+import org.sayandev.stickynote.lib.spongepowered.configurate.serialize.TypeSerializerCollection
 import java.io.File
 
-var settings: SettingsConfig = SettingsConfig.fromConfig() ?: SettingsConfig.defaultConfig()
+public var settings: SettingsConfig = SettingsConfig.fromConfig() ?: SettingsConfig.defaultConfig()
 
 @ConfigSerializable
 data class SettingsConfig(
     val general: General = General(),
     val vanish: Vanish = Vanish(),
-) : Config(pluginDirectory, fileName) {
+) : Config(
+    pluginDirectory,
+    fileName,
+    typeSerializerCollection
+) {
 
     init {
         load()
@@ -31,7 +40,6 @@ data class SettingsConfig(
         val remember: Boolean = true,
         val seeAsSpectator: Boolean = true, // TODO
         val effects: List<String> = listOf(PotionEffectType.NIGHT_VISION.key.key), // TODO
-//        val features: List<Feature> = Features.features(),
         val level: Level = Level(),
         val sneakToggleGameMode: Boolean = true,
         val actionbar: Actionbar = Actionbar(),
@@ -40,7 +48,8 @@ data class SettingsConfig(
         val invulnerability: Invunerability = Invunerability(),
         val prevention: Prevention = Prevention(),
         val joinLeaveMessage: JoinLeaveMessage = JoinLeaveMessage(),
-        val hooks: Hooks = Hooks()
+        val hooks: Hooks = Hooks(),
+//        val features: List<Feature> = Features.features(),
     ) {
         @ConfigSerializable
         data class JoinLeaveMessage(
@@ -106,9 +115,8 @@ data class SettingsConfig(
             val essentials: Essentials = Essentials(),
             val dynmap: Dynmap = Dynmap(), // TODO
             val squareMap: SquareMap = SquareMap(),
-            val placeholderAPI: PlaceholderAPI = PlaceholderAPI(), // TODO
+            @Setting("placeholder-api") val placeholderAPI: PlaceholderAPI = PlaceholderAPI(), // TODO
             val citizens: Citizens = Citizens(), // TODO
-            val luckperms: LuckPerms = LuckPerms(), // TODO
         ) {
             @ConfigSerializable
             data class Essentials(
@@ -137,16 +145,18 @@ data class SettingsConfig(
             data class Citizens(
                 val enabled: Boolean = true,
             )
-
-            @ConfigSerializable
-            data class LuckPerms(
-                val enabled: Boolean = true,
-            )
         }
     }
 
     companion object {
+        private val typeSerializerCollection = TypeSerializerCollection.builder()
+            .apply {
+                register(Feature::class.java, FeatureTypeSerializer())
+            }
+            .build()
+
         private val fileName = "settings.yml"
+        val settingsFile = File(pluginDirectory, fileName)
 
         @JvmStatic
         fun defaultConfig(): SettingsConfig {
@@ -155,7 +165,7 @@ data class SettingsConfig(
 
         @JvmStatic
         fun fromConfig(): SettingsConfig? {
-            return fromConfig<SettingsConfig>(File(pluginDirectory, fileName))
+            return fromConfig<SettingsConfig>(settingsFile, typeSerializerCollection)
         }
     }
 }

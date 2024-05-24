@@ -24,14 +24,20 @@ repositories {
 
     // libby
     maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+
+    // Citizens
+    maven("https://repo.citizensnpcs.co/")
+
+    // PlaceholderAPI
+    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
 }
 
 dependencies {
 //    compileOnly("org.spigotmc:spigot-api:1.20.6-R0.1-SNAPSHOT")
     paperweight.paperDevBundle("1.20.4-R0.1-SNAPSHOT")
 
-    compileOnly("org.sayandev:stickynote-core:1.0.22")
-    compileOnly("org.sayandev:stickynote-bukkit:1.0.22")
+    compileOnly("org.sayandev:stickynote-core:1.0.24")
+    compileOnly("org.sayandev:stickynote-bukkit:1.0.24")
     implementation("com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT")
 
     implementation(project(":sayanvanish-api"))
@@ -39,6 +45,8 @@ dependencies {
 
     compileOnly("net.essentialsx:EssentialsX:2.20.1")
     compileOnly("xyz.jpenilla:squaremap-api:1.2.3")
+    compileOnly("net.citizensnpcs:citizensapi:2.0.28-SNAPSHOT")
+    compileOnly("me.clip:placeholderapi:2.11.6")
 
     testImplementation("com.github.seeseemelk:MockBukkit-v1.20:3.9.0")
     testImplementation("com.mojang:brigadier:1.0.18")
