@@ -41,8 +41,8 @@ open class SayanVanish : JavaPlugin() {
     private fun downloadLibraries() {
         logger.info("Trying to download required libraries, make sure your machine is connected to internet.")
         val libraryManager = BukkitLibraryManager(this)
-        libraryManager.addRepository("https://repo.sayandev.org/snapshots")
         libraryManager.addMavenLocal()
+        libraryManager.addRepository("https://repo.sayandev.org/snapshots")
         libraryManager.loadLibrary(
             Library.builder()
                 .groupId("org{}sayandev")

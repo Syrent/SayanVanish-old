@@ -34,7 +34,7 @@ class DatabaseExecutor<U : User>(
     val type = DatabaseMethod.entries.find { it == config.method } ?: throw IllegalArgumentException("${config.method} is not a valid database method! valid methods: `${DatabaseMethod.entries.joinToString(", ")}`")
 
     override fun initialize() {
-        database.runQuery(Query.query("CREATE TABLE IF NOT EXISTS ${config.tablePrefix}users (UUID VARCHAR(64),username VARCHAR(16),is_vanished INT,is_online INT,vanish_level INT,PRIMARY KEY (UUID));"))
+        val queryResult = database.runQuery(Query.query("CREATE TABLE IF NOT EXISTS ${config.tablePrefix}users (UUID VARCHAR(64),username VARCHAR(16),is_vanished INT,is_online INT,vanish_level INT,PRIMARY KEY (UUID));"))
     }
 
     override fun connect() {
@@ -63,8 +63,9 @@ class DatabaseExecutor<U : User>(
             override var isOnline: Boolean = result.getBoolean("is_online")
             override var vanishLevel: Int = result.getInt("vanish_level")
         }
-        result.close()
-        return (type.safeCast(user) as? U) ?: (user.cast(type) as U)
+        val typedUser = (type.safeCast(user) as? U) ?: (user.cast(type) as U)
+        cache[uniqueId] = typedUser
+        return typedUser
     }
 
     override fun getUsers(useCache: Boolean): List<U> {
@@ -90,7 +91,6 @@ class DatabaseExecutor<U : User>(
             }
             users.add((type.safeCast(user) as? U) ?: (user.cast(type) as U))
         }
-        result.close()
 
         return users
     }
@@ -122,7 +122,6 @@ class DatabaseExecutor<U : User>(
         val queryResult = database.runQuery(Query.query("SELECT * FROM ${config.tablePrefix}users WHERE UUID = ?;").setStatementValue(1, uniqueId.toString()))
         val result = queryResult.result ?: return false
         val hasNext = result.next()
-        result.close()
         return hasNext
     }
 

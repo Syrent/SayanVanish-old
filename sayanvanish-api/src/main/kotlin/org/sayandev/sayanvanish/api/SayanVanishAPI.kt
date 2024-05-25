@@ -55,9 +55,11 @@ open class SayanVanishAPI<U: User>(val type: KClass<out User>, val useCache: Boo
     }
 
     companion object {
+        private val defaultInstance = SayanVanishAPI<User>()
+
         @JvmStatic
         fun getInstance(): SayanVanishAPI<User> {
-            return SayanVanishAPI()
+            return defaultInstance
         }
 
         fun UUID.user(): User? {

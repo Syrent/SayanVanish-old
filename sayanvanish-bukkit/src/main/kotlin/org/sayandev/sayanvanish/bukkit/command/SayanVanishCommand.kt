@@ -16,6 +16,7 @@ import org.sayandev.sayanvanish.bukkit.config.settings
 import org.sayandev.sayanvanish.bukkit.utils.ServerUtils
 import org.sayandev.stickynote.bukkit.command.StickyCommand
 import org.sayandev.stickynote.bukkit.command.interfaces.SenderExtension
+import org.sayandev.stickynote.bukkit.pluginDirectory
 import org.sayandev.stickynote.bukkit.runAsync
 import org.sayandev.stickynote.bukkit.runSync
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.component
@@ -27,9 +28,10 @@ import org.sayandev.stickynote.lib.incendo.cloud.parser.standard.IntegerParser
 import org.sayandev.stickynote.lib.incendo.cloud.parser.standard.StringParser
 import org.sayandev.stickynote.lib.incendo.cloud.suggestion.Suggestion
 import org.sayandev.stickynote.lib.kyori.adventure.text.minimessage.tag.resolver.Placeholder
+import java.io.File
 import java.util.concurrent.CompletableFuture
 
-class SayanVanishCommand : StickyCommand("sayanvanish", "vanish") {
+class SayanVanishCommand : StickyCommand("sayanvanish", "vanish", "v") {
 
     val command = manager.commandBuilder(this.name, *aliases)
         .permission(constructBasePermission("vanish"))
@@ -70,8 +72,6 @@ class SayanVanishCommand : StickyCommand("sayanvanish", "vanish") {
             if (target.isPresent) {
                 if (!player.isOnline) {
                     sender.sendMessage(language.vanish.offlineOnVanish.component(Placeholder.unparsed("player", player.name ?: "N/A"), Placeholder.parsed("state", user.stateText())))
-                } else {
-                    sender.sendMessage(language.vanish.vanishStateOther.component(Placeholder.unparsed("player", player.name ?: "N/A"), Placeholder.parsed("state", user.stateText())))
                 }
             }
         }
@@ -97,17 +97,14 @@ class SayanVanishCommand : StickyCommand("sayanvanish", "vanish") {
                     Paste("yaml", SettingsConfig.settingsFile.readLines()).post().whenComplete { settingsKey, settingsError ->
                         sendPasteError(sender, settingsError)
 
-                        Paste("json", listOf(ServerUtils.getServerData(
-                            mapOf(
-                                "settings.yml" to "${Paste.PASTE_URL}/$settingsKey",
-                                "database-type" to databaseConfig.method.toString()
-                            )))
-                        ).post().whenComplete { key, generalError ->
-                            sendPasteError(sender, generalError)
-
-                            runSync {
-                                sender.sendMessage(language.paste.use.replace("<key>", key ?: "N/A").component())
+                        val latestLogFile = File(File(pluginDirectory.parentFile.parentFile, "logs"), "latest.log")
+                        if (latestLogFile.exists()) {
+                            Paste("log", latestLogFile.readLines()).post().whenComplete { logKey, logError ->
+                                sendPasteError(sender, logError)
+                                generateMainPaste(sender, mapOf("settings.yml" to "${Paste.PASTE_URL}/$settingsKey", "latest.log" to "${Paste.PASTE_URL}/$logKey"))
                             }
+                        } else {
+                            generateMainPaste(sender, mapOf("settings.yml" to "${Paste.PASTE_URL}/$settingsKey"))
                         }
                     }
                 }
@@ -172,12 +169,29 @@ class SayanVanishCommand : StickyCommand("sayanvanish", "vanish") {
             .build())
     }
 
-    fun sendPasteError(sender: CommandSender, error: Throwable?) {
+    private fun sendPasteError(sender: CommandSender, error: Throwable?) {
         if (error != null) {
             runSync {
                 sender.sendMessage(language.paste.failedToGenerate.component())
             }
             error.printStackTrace()
+        }
+    }
+
+    private fun generateMainPaste(sender: CommandSender, otherKeys: Map<String, String>) {
+        Paste("json", listOf(ServerUtils.getServerData(
+            mutableMapOf(
+                "database-type" to databaseConfig.method.toString(),
+            ).apply {
+                this.putAll(otherKeys)
+            }
+        ))
+        ).post().whenComplete { key, generalError ->
+            sendPasteError(sender, generalError)
+
+            runSync {
+                sender.sendMessage(language.paste.use.replace("<key>", key ?: "N/A").component())
+            }
         }
     }
 }
