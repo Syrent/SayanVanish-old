@@ -2,7 +2,6 @@ package org.sayandev.sayanvanish.bukkit
 
 import com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent
-import net.citizensnpcs.api.ai.speech.event.SpeechEvent
 import net.ess3.api.events.AfkStatusChangeEvent
 import net.ess3.api.events.PrivateMessagePreSendEvent
 import org.bukkit.GameMode
@@ -17,13 +16,7 @@ import org.bukkit.event.block.BlockReceiveGameEvent
 import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityPickupItemEvent
-import org.bukkit.event.player.AsyncPlayerChatEvent
-import org.bukkit.event.player.PlayerAdvancementDoneEvent
-import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerMoveEvent
-import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.event.player.PlayerToggleSneakEvent
+import org.bukkit.event.player.*
 import org.bukkit.event.raid.RaidTriggerEvent
 import org.sayandev.sayanvanish.api.Permission
 import org.sayandev.sayanvanish.api.VanishOptions
@@ -35,8 +28,7 @@ import org.sayandev.sayanvanish.bukkit.config.settings
 import org.sayandev.stickynote.bukkit.*
 import org.sayandev.stickynote.bukkit.event.registerListener
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.component
-import org.sayandev.stickynote.lib.xseries.xseries.ReflectionUtils
-import java.util.*
+import org.sayandev.stickynote.lib.xseries.ReflectionUtils
 
 object VanishManager : Listener {
 
