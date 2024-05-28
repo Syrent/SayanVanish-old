@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.9.23"
+    kotlin("jvm") version "2.0.0"
     `java-library`
     `maven-publish`
     id("io.github.goooler.shadow") version "8.1.7"
@@ -13,7 +13,7 @@ description = "A modular vanish system for Minecraft servers"
 
 allprojects {
     group = "org.sayandev"
-    version = "1.0.0-beta.7"
+    version = "1.0.0-beta.8"
 
     plugins.apply("java-library")
     plugins.apply("maven-publish")
@@ -58,7 +58,7 @@ subprojects {
 
         testImplementation("org.xerial:sqlite-jdbc:3.45.3.0")
         testImplementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
-        compileOnly(kotlin("stdlib", version = "1.9.23"))
+        compileOnly(kotlin("stdlib", version = "2.0.0"))
     }
 
     tasks {
@@ -80,7 +80,7 @@ subprojects {
             destinationDirectory.set(file(rootProject.projectDir.path + "/bin"))
             relocate("org.sayandev.stickynote", "org.sayandev.sayanvanish.lib.stickynote")
             from("LICENSE")
-            minimize()
+//            minimize()
         }
 
         test {

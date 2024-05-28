@@ -1,5 +1,6 @@
 package org.sayandev.sayanvanish.api.database
 
+import org.sayandev.sayanvanish.api.BasicUser
 import org.sayandev.sayanvanish.api.Platform
 import org.sayandev.sayanvanish.api.User
 import org.sayandev.sayanvanish.api.User.Companion.cast
@@ -19,9 +20,17 @@ class DatabaseExecutor<U : User>(
 ) : Database<U> {
 
     val cache = mutableMapOf<UUID, U>()
+    val basicCache = mutableMapOf<UUID, BasicUser>()
+    val driverClass = try {
+        Class.forName("com.mysql.cj.jdbc.Driver")
+        "com.mysql.cj.jdbc.Driver"
+    } catch (e: ClassNotFoundException) {
+        Class.forName("com.mysql.jdbc.Driver")
+        "com.mysql.jdbc.Driver"
+    }
     val database: org.sayandev.stickynote.core.database.Database = when (config.method.name.lowercase()) {
         DatabaseMethod.MYSQL.name.lowercase() -> {
-            MySQLDatabase(MySQLCredentials.Companion.mySQLCredentials("localhost", 3306, "sayanvanish", false, "root", "admin"), 5, config.poolProperties.keepaliveTime, config.poolProperties.connectionTimeout)
+            MySQLDatabase(MySQLCredentials.Companion.mySQLCredentials(config.host, config.port, config.database, config.poolProperties.useSSL, config.username, config.password), config.poolProperties.maximumPoolSize, false, driverClass, config.poolProperties.keepaliveTime, config.poolProperties.connectionTimeout)
         }
         DatabaseMethod.SQLITE.name.lowercase() -> {
             SQLiteDatabase(File(Platform.get().rootDirectory, "storage.db"), Platform.get().logger)
@@ -34,7 +43,8 @@ class DatabaseExecutor<U : User>(
     val type = DatabaseMethod.entries.find { it == config.method } ?: throw IllegalArgumentException("${config.method} is not a valid database method! valid methods: `${DatabaseMethod.entries.joinToString(", ")}`")
 
     override fun initialize() {
-        val queryResult = database.runQuery(Query.query("CREATE TABLE IF NOT EXISTS ${config.tablePrefix}users (UUID VARCHAR(64),username VARCHAR(16),is_vanished INT,is_online INT,vanish_level INT,PRIMARY KEY (UUID));"))
+        database.runQuery(Query.query("CREATE TABLE IF NOT EXISTS ${config.tablePrefix}users (UUID VARCHAR(64),username VARCHAR(16),server VARCHAR(128),is_vanished INT,is_online INT,vanish_level INT,PRIMARY KEY (UUID));"))
+        database.runQuery(Query.query("CREATE TABLE IF NOT EXISTS ${config.tablePrefix}basic_users (UUID VARCHAR(64),username VARCHAR(16),server VARCHAR(128),PRIMARY KEY (UUID));"))
     }
 
     override fun connect() {
@@ -57,6 +67,7 @@ class DatabaseExecutor<U : User>(
         val user = object : User {
             override val uniqueId: UUID = UUID.fromString(result.getString("UUID"))
             override var username: String = result.getString("username")
+            override var serverId: String = result.getString("server")
             override var currentOptions: VanishOptions = VanishOptions.defaultOptions()
 
             override var isVanished: Boolean = result.getBoolean("is_vanished")
@@ -83,6 +94,7 @@ class DatabaseExecutor<U : User>(
             val user = object : User {
                 override val uniqueId: UUID = UUID.fromString(result.getString("UUID"))
                 override var username: String = result.getString("username")
+                override var serverId: String = result.getString("server")
                 override var currentOptions: VanishOptions = VanishOptions.defaultOptions()
 
                 override var isVanished: Boolean = result.getBoolean("is_vanished")
@@ -90,6 +102,25 @@ class DatabaseExecutor<U : User>(
                 override var vanishLevel: Int = result.getInt("vanish_level")
             }
             users.add((type.safeCast(user) as? U) ?: (user.cast(type) as U))
+        }
+
+        return users
+    }
+
+    fun getBasicUsers(useCache: Boolean): List<BasicUser> {
+        if (useCache) {
+            return basicCache.values.toList()
+        }
+
+        val result = database.runQuery(Query.query("SELECT * FROM ${config.tablePrefix}basic_users;")).result ?: return emptyList()
+        val users = mutableListOf<BasicUser>()
+        while (result.next()) {
+            val user = BasicUser.create(
+                UUID.fromString(result.getString("UUID")),
+                result.getString("username"),
+                result.getString("server")
+            )
+            users.add(user)
         }
 
         return users
@@ -103,15 +134,32 @@ class DatabaseExecutor<U : User>(
         cache[user.uniqueId] = user
         if (!hasUser(user.uniqueId, false)) {
             database.runQuery(
-                Query.query("INSERT ${if (type == DatabaseMethod.MYSQL) "IGNORE " else ""}INTO ${config.tablePrefix}users (UUID, username, is_vanished, is_online, vanish_level) VALUES (?,?,?,?,?);")
+                Query.query("INSERT ${if (type == DatabaseMethod.MYSQL) "IGNORE " else ""}INTO ${config.tablePrefix}users (UUID, username, server, is_vanished, is_online, vanish_level) VALUES (?,?,?,?,?,?);")
                     .setStatementValue(1, user.uniqueId.toString())
                     .setStatementValue(2, user.username)
-                    .setStatementValue(3, user.isVanished)
-                    .setStatementValue(4, user.isOnline)
-                    .setStatementValue(5, user.vanishLevel)
+                    .setStatementValue(3, user.serverId)
+                    .setStatementValue(4, user.isVanished)
+                    .setStatementValue(5, user.isOnline)
+                    .setStatementValue(6, user.vanishLevel)
             )
         } else {
             updateUser(user)
+        }
+    }
+
+    override fun addBasicUser(user: BasicUser) {
+        basicCache[user.uniqueId] = user
+        if (!hasBasicUser(user.uniqueId, false)) {
+            database.runQuery(
+                Query.query("INSERT ${if (type == DatabaseMethod.MYSQL) "IGNORE " else ""}INTO ${config.tablePrefix}basic_users (UUID, username, server) VALUES (?,?,?);")
+                    .setStatementValue(1, user.uniqueId.toString())
+                    .setStatementValue(2, user.username)
+                    .setStatementValue(3, user.serverId)
+            )
+        } else {
+            if (user.serverId != Platform.get().id) {
+                updateBasicUser(user)
+            }
         }
     }
 
@@ -125,9 +173,24 @@ class DatabaseExecutor<U : User>(
         return hasNext
     }
 
+    override fun hasBasicUser(uniqueId: UUID, useCache: Boolean): Boolean {
+        if (useCache) {
+            return basicCache.contains(uniqueId)
+        }
+        val queryResult = database.runQuery(Query.query("SELECT * FROM ${config.tablePrefix}basic_users WHERE UUID = ?;").setStatementValue(1, uniqueId.toString()))
+        val result = queryResult.result ?: return false
+        val hasNext = result.next()
+        return hasNext
+    }
+
     override fun removeUser(uniqueId: UUID) {
         cache.remove(uniqueId)
         database.runQuery(Query.query("DELETE FROM ${config.tablePrefix}users WHERE UUID = ?;").setStatementValue(1, uniqueId.toString()))
+    }
+
+    override fun removeBasicUser(uniqueId: UUID) {
+        basicCache.remove(uniqueId)
+        database.runQuery(Query.query("DELETE FROM ${config.tablePrefix}basic_users WHERE UUID = ?;").setStatementValue(1, uniqueId.toString()))
     }
 
     override fun updateUser(user: U) {
@@ -142,12 +205,44 @@ class DatabaseExecutor<U : User>(
         )
     }
 
+    override fun updateBasicUser(user: BasicUser) {
+        basicCache[user.uniqueId] = user
+        database.runQuery(
+            Query.query("UPDATE ${config.tablePrefix}basic_users SET username = ?, server = ? WHERE UUID = ?;")
+                .setStatementValue(1, user.username)
+                .setStatementValue(2, user.serverId)
+                .setStatementValue(3, user.uniqueId.toString())
+        )
+    }
+
     override fun purgeCache() {
         cache.clear()
+        basicCache.clear()
     }
 
     override fun purge() {
         database.runQuery(Query.query("DELETE FROM ${config.tablePrefix}users;"))
+        database.runQuery(Query.query("DELETE FROM ${config.tablePrefix}basic_users;"))
+    }
+
+    override fun purgeBasic() {
+        database.runQuery(Query.query("DELETE FROM ${config.tablePrefix}basic_users;"))
+    }
+
+    override fun purgeBasic(serverId: String) {
+        database.runQuery(Query.query("DELETE FROM ${config.tablePrefix}basic_users WHERE server = ?;").setStatementValue(1, serverId))
+    }
+
+    override fun updateBasicCache() {
+        val result = database.runQuery(Query.query("SELECT * FROM ${config.tablePrefix}basic_users;")).result ?: return
+        while (result.next()) {
+            val user = BasicUser.create(
+                UUID.fromString(result.getString("UUID")),
+                result.getString("username"),
+                result.getString("server")
+            )
+            basicCache[user.uniqueId] = user
+        }
     }
 
 }

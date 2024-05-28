@@ -26,6 +26,10 @@ open class SayanVanishAPI<U: User>(val type: KClass<out User>, val useCache: Boo
         return getUsers().filter(predicate)
     }
 
+    fun getBasicUsers(): List<BasicUser> {
+        return databaseExecutor.getBasicUsers(useCache)
+    }
+
     fun getSortedUsers(predicate: (U) -> Int) {
         getUsers().sortedByDescending(predicate)
     }
@@ -42,8 +46,16 @@ open class SayanVanishAPI<U: User>(val type: KClass<out User>, val useCache: Boo
         databaseExecutor.addUser(user)
     }
 
+    fun addBasicUser(user: BasicUser) {
+        databaseExecutor.addBasicUser(user)
+    }
+
     fun removeUser(uniqueId: UUID) {
         databaseExecutor.removeUser(uniqueId)
+    }
+
+    fun removeBasicUser(uniqueId: UUID) {
+        databaseExecutor.removeBasicUser(uniqueId)
     }
 
     fun removeUser(user: U) {

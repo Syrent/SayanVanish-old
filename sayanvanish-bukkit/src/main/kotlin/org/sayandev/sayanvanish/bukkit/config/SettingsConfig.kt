@@ -33,6 +33,7 @@ data class SettingsConfig(
     data class General(
         val language: String = LanguageConfig.Language.EN_US.id,
         val updateChecker: Boolean = true,
+        val proxyMode: Boolean = false
     )
 
     @ConfigSerializable

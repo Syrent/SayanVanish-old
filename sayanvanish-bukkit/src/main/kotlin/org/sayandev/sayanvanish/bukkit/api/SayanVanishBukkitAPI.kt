@@ -1,16 +1,15 @@
 package org.sayandev.sayanvanish.bukkit.api
 
-import org.sayandev.sayanvanish.api.SayanVanishAPI
 import org.bukkit.OfflinePlayer
 import org.sayandev.sayanvanish.api.Permission
+import org.sayandev.sayanvanish.api.SayanVanishAPI
 import org.sayandev.sayanvanish.api.database.databaseConfig
-import org.sayandev.stickynote.bukkit.warn
 import java.util.*
 
 class SayanVanishBukkitAPI(useCache: Boolean) : SayanVanishAPI<BukkitUser>(BukkitUser::class, useCache) {
     companion object {
         private val cachedInstance = SayanVanishBukkitAPI(true)
-        private val defaultInstance = SayanVanishBukkitAPI(true)
+        private val defaultInstance = SayanVanishBukkitAPI(false)
 
         fun getInstance(useCache: Boolean): SayanVanishAPI<BukkitUser> {
             return if (useCache) cachedInstance else defaultInstance
@@ -25,12 +24,12 @@ class SayanVanishBukkitAPI(useCache: Boolean) : SayanVanishAPI<BukkitUser>(Bukki
         }
 
         fun OfflinePlayer.user(useCache: Boolean = databaseConfig.useCacheWhenAvailable): BukkitUser? {
-            val onlinePlayer = this.player
+            /*val onlinePlayer = this.player
             if (onlinePlayer != null) {
                 if (!onlinePlayer.hasPermission(Permission.VANISH.permission())) {
                     return null
                 }
-            }
+            }*/
             return getInstance(useCache).getUser(this.uniqueId)
         }
 

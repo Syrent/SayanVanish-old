@@ -12,8 +12,8 @@ import org.sayandev.sayanvanish.bukkit.config.SettingsConfig
 import org.sayandev.sayanvanish.bukkit.hook.Hooks
 import org.sayandev.stickynote.bukkit.StickyNote
 import org.sayandev.stickynote.bukkit.WrappedStickyNotePlugin
-import org.sayandev.stickynote.bukkit.log
 import org.sayandev.stickynote.bukkit.pluginDirectory
+import org.sayandev.stickynote.bukkit.runAsync
 
 open class SayanVanish : JavaPlugin() {
 
@@ -32,6 +32,10 @@ open class SayanVanish : JavaPlugin() {
         Hooks
 
         SayanVanishCommand()
+
+        runAsync({
+            SayanVanishBukkitAPI.getInstance().databaseExecutor.updateBasicCache()
+        }, 100, 100)
     }
 
     override fun onDisable() {
@@ -47,7 +51,7 @@ open class SayanVanish : JavaPlugin() {
             Library.builder()
                 .groupId("org{}sayandev")
                 .artifactId("stickynote-core")
-                .version("1.0.24")
+                .version("1.0.26")
                 .relocate("org{}sayandev{}stickynote", "org{}sayandev{}sayanvanish{}lib{}stickynote")
                 .build()
         )
@@ -55,7 +59,7 @@ open class SayanVanish : JavaPlugin() {
             Library.builder()
                 .groupId("org{}sayandev")
                 .artifactId("stickynote-bukkit")
-                .version("1.0.24")
+                .version("1.0.26")
                 .relocate("org{}sayandev{}stickynote", "org{}sayandev{}sayanvanish{}lib{}stickynote")
                 .build()
         )

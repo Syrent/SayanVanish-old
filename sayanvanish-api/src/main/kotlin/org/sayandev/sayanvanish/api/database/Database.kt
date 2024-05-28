@@ -1,5 +1,6 @@
 package org.sayandev.sayanvanish.api.database
 
+import org.sayandev.sayanvanish.api.BasicUser
 import org.sayandev.sayanvanish.api.User
 import java.util.*
 import kotlin.reflect.KClass
@@ -21,15 +22,22 @@ interface Database<U: User> {
     fun getUsers(useCache: Boolean): List<U>
 
     fun updateUser(user: U)
+    fun updateBasicUser(user: BasicUser)
 
     fun addUser(user: U)
+    fun addBasicUser(user: BasicUser)
 
     fun hasUser(uniqueId: UUID, useCache: Boolean): Boolean
+    fun hasBasicUser(uniqueId: UUID, useCache: Boolean): Boolean
 
     fun removeUser(uniqueId: UUID)
+    fun removeBasicUser(uniqueId: UUID)
 
     fun purgeCache()
 
     fun purge()
+    fun purgeBasic()
+    fun purgeBasic(serverId: String)
+    fun updateBasicCache()
 
 }

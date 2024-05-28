@@ -18,7 +18,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.player.*
 import org.bukkit.event.raid.RaidTriggerEvent
+import org.sayandev.sayanvanish.api.BasicUser
 import org.sayandev.sayanvanish.api.Permission
+import org.sayandev.sayanvanish.api.SayanVanishAPI
 import org.sayandev.sayanvanish.api.VanishOptions
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.getOrCreateUser
@@ -46,7 +48,7 @@ object VanishManager : Listener {
     private fun startActionbarTask() {
         runSync({
             if (!settings.vanish.actionbar.enabled) return@runSync
-            for (user in onlinePlayers.mapNotNull { it.user() }.filter { it.isVanished }) {
+            for (user in onlinePlayers.filter { it.hasPermission(Permission.VANISH.permission()) }.mapNotNull { it.user() }.filter { it.isVanished }) {
                 user.sendActionbar(settings.vanish.actionbar.content.component())
             }
         }, settings.vanish.actionbar.repeatEvery, settings.vanish.actionbar.repeatEvery)
@@ -56,7 +58,7 @@ object VanishManager : Listener {
     private fun vanishPlayerOnJoin(event: PlayerJoinEvent) {
         val player = event.player
         val user = player.user(false)
-        val vanishJoinOptions = VanishOptions.Builder().sendMessage(false).build()
+        val vanishJoinOptions = VanishOptions.Builder().sendMessage(false).notifyOthers(false).build()
 
         if (user == null) {
             val tempUser = player.getOrCreateUser()
@@ -73,9 +75,10 @@ object VanishManager : Listener {
             }
             return
         }
+
         user.isOnline = true
 
-        if (settings.vanish.state.checkPermissionOnQuit && !user.hasPermission(Permission.VANISH)) {
+        if (settings.vanish.state.checkPermissionOnJoin && !user.hasPermission(Permission.VANISH)) {
             user.unVanish()
             user.save()
             return
@@ -94,6 +97,22 @@ object VanishManager : Listener {
             event.joinMessage = REMOVAL_MESSAGE_ID
         }
         return
+    }
+
+    @EventHandler
+    private fun addBasicUserOnJoin(event: PlayerJoinEvent) {
+        if (settings.general.proxyMode) return
+
+        val player = event.player
+        SayanVanishAPI.getInstance().addBasicUser(BasicUser.create(player.uniqueId, player.name, null))
+    }
+
+    @EventHandler
+    private fun removeBasicUserOnQuit(event: PlayerJoinEvent) {
+        if (settings.general.proxyMode) return
+
+        val player = event.player
+        SayanVanishAPI.getInstance().removeBasicUser(player.uniqueId)
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -214,7 +233,10 @@ object VanishManager : Listener {
         }
         registerListener<PreSpawnerSpawnEvent> { event ->
             if (!settings.vanish.prevention.mobSpawning) return@registerListener
-            if (SayanVanishBukkitAPI.getInstance().getUsers { it.player() != null }.mapNotNull { it.player() }.any { it.world == event.spawnerLocation.world && it.location.distance(event.spawnerLocation) <= 256 }) {
+            val nearPlayers = onlinePlayers
+                .filter { player -> player.world == event.spawnerLocation.world && player.location.distance(event.spawnerLocation) <= 256 && player.gameMode != GameMode.SPECTATOR }
+            val allIsVanished = nearPlayers.all { it.user()?.isVanished == true }
+            if (allIsVanished) {
                 event.isCancelled = true
             }
         }

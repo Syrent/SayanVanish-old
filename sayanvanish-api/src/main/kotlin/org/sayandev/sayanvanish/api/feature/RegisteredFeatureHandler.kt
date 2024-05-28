@@ -7,7 +7,7 @@ import java.lang.reflect.Constructor
 object RegisteredFeatureHandler {
 
     fun process() {
-        val reflections = Reflections("org.sayandev.sayanvanish.bukkit")
+        val reflections = Reflections("org.sayandev.sayanvanish")
         val annotatedClasses = reflections.getTypesAnnotatedWith(RegisteredFeature::class.java)
 
         for (annotatedClass in annotatedClasses) {

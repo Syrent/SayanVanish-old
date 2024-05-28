@@ -7,6 +7,7 @@ import org.bukkit.entity.Player
 import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.scoreboard.Team
 import org.sayandev.sayanvanish.api.Permission
+import org.sayandev.sayanvanish.api.Platform
 import org.sayandev.sayanvanish.api.User
 import org.sayandev.sayanvanish.api.VanishOptions
 import org.sayandev.sayanvanish.bukkit.VanishManager
@@ -17,7 +18,6 @@ import org.sayandev.sayanvanish.bukkit.api.event.BukkitUserVanishEvent
 import org.sayandev.sayanvanish.bukkit.config.language
 import org.sayandev.sayanvanish.bukkit.config.settings
 import org.sayandev.stickynote.bukkit.*
-import org.sayandev.stickynote.bukkit.utils.AdventureUtils
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.component
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.sendActionbar
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.sendMessage
@@ -31,6 +31,7 @@ open class BukkitUser(
     override var username: String
 ) : User {
 
+    override var serverId = Platform.get().id
     override var currentOptions = VanishOptions.defaultOptions()
     override var isVanished = false
     override var isOnline: Boolean = false
@@ -46,6 +47,7 @@ open class BukkitUser(
         server.pluginManager.callEvent(vanishEvent)
         if (vanishEvent.isCancelled) return
         val options = vanishEvent.options
+        currentOptions = options
 
         if (options.sendMessage) {
             val quitMessage = VanishManager.generalQuitMessage
@@ -87,7 +89,6 @@ open class BukkitUser(
         if (hasPlugin("squaremap")) {
             player()?.uniqueId?.let { SquaremapProvider.get().playerManager().hide(it, true) }
         }
-        currentOptions = options
 
         super.vanish(options)
 
@@ -99,6 +100,7 @@ open class BukkitUser(
         server.pluginManager.callEvent(unVanishEvent)
         if (unVanishEvent.isCancelled) return
         val options = unVanishEvent.options
+        currentOptions = options
 
         if (options.sendMessage) {
             val joinMessage = VanishManager.generalJoinMessage
@@ -132,7 +134,6 @@ open class BukkitUser(
         if (hasPlugin("squaremap")) {
             player()?.uniqueId?.let { SquaremapProvider.get().playerManager().show(it, true) }
         }
-        currentOptions = options
 
         super.unVanish(options)
 
@@ -143,11 +144,19 @@ open class BukkitUser(
         return player()?.hasPermission(permission) ?: false
     }
 
-    override fun sendMessage(content: Component) {
+    override fun sendMessage(content: String) {
+        player()?.sendMessage(content.component())
+    }
+
+    fun sendMessage(content: Component) {
         player()?.sendMessage(content)
     }
 
-    override fun sendActionbar(content: Component) {
+    override fun sendActionbar(content: String) {
+        player()?.sendActionbar(content.component())
+    }
+
+    fun sendActionbar(content: Component) {
         player()?.sendActionbar(content)
     }
 
@@ -155,8 +164,10 @@ open class BukkitUser(
         for (onlinePlayer in onlinePlayers) {
             hideUser(onlinePlayer)
         }
-        for (otherUsers in SayanVanishBukkitAPI.getInstance().getOnlineUsers().filter { it.username != username && it.vanishLevel >= vanishLevel }) {
-            otherUsers.sendMessage(language.vanish.vanishStateOther.component(Placeholder.parsed("player", username), Placeholder.parsed("state", stateText(!isVanished))))
+        if (currentOptions.notifyOthers) {
+            for (otherUsers in SayanVanishBukkitAPI.getInstance().getOnlineUsers().filter { it.username != username && it.vanishLevel >= vanishLevel }) {
+                otherUsers.sendMessage(language.vanish.vanishStateOther.component(Placeholder.parsed("player", username), Placeholder.parsed("state", stateText(true))))
+            }
         }
     }
 
@@ -174,8 +185,10 @@ open class BukkitUser(
         for (onlinePlayer in onlinePlayers) {
             showUser(onlinePlayer)
         }
-        for (otherUsers in SayanVanishBukkitAPI.getInstance().getOnlineUsers().filter { it.username != username && it.vanishLevel >= vanishLevel }) {
-            otherUsers.sendMessage(language.vanish.vanishStateOther.component(Placeholder.parsed("player", username), Placeholder.parsed("state", stateText(!isVanished))))
+        if (currentOptions.notifyOthers) {
+            for (otherUsers in SayanVanishBukkitAPI.getInstance().getOnlineUsers().filter { it.username != username && it.vanishLevel >= vanishLevel }) {
+                otherUsers.sendMessage(language.vanish.vanishStateOther.component(Placeholder.parsed("player", username), Placeholder.parsed("state", stateText(false))))
+            }
         }
     }
 

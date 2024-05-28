@@ -2,6 +2,7 @@ package org.sayandev.sayanvanish.bukkit.hook.hooks
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
 import org.bukkit.OfflinePlayer
+import org.sayandev.sayanvanish.api.SayanVanishAPI
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.user
 import org.sayandev.stickynote.bukkit.StickyNote
@@ -48,11 +49,9 @@ class HookPlaceholderAPI : PlaceholderExpansion() {
             return if (type.equals("here", true)) {
                 onlinePlayers.filter { onlinePlayer -> !vanishedOnlineUsers.map { vanishedOnlineUser -> vanishedOnlineUser.username }.contains(onlinePlayer.name) }.size.toString()
             } else if (type.equals("total", true)) {
-                // TODO: add velocity module
-                return "NOT IMPLEMENTED YET"
+                return SayanVanishAPI.getInstance().getBasicUsers().filter { !vanishedOnlineUsers.map { vanishUser -> vanishUser.username }.contains(it.username) }.size.toString()
             } else {
-                // TODO: add velocity module
-                return "NOT IMPLEMENTED YET"
+                return SayanVanishAPI.getInstance().getBasicUsers().filter { it.serverId == type && !vanishedOnlineUsers.map { vanishUser -> vanishUser.username }.contains(it.username) }.size.toString()
             }
         }
 

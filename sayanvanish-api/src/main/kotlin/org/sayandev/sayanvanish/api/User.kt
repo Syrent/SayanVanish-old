@@ -1,14 +1,9 @@
 package org.sayandev.sayanvanish.api
 
 import org.sayandev.sayanvanish.api.exception.UnsupportedPlatformException
-import org.sayandev.stickynote.lib.kyori.adventure.text.Component
-import java.util.*
 import kotlin.reflect.KClass
 
-interface User {
-
-    val uniqueId: UUID
-    var username: String
+interface User : BasicUser {
 
     var currentOptions: VanishOptions
     var isVanished: Boolean
@@ -41,11 +36,11 @@ interface User {
         toggleVanish(VanishOptions.defaultOptions())
     }
 
-    open fun sendMessage(content: Component) {
+    open fun sendMessage(content: String) {
         throw UnsupportedPlatformException("sendMessage")
     }
 
-    open fun sendActionbar(content: Component) {
+    open fun sendActionbar(content: String) {
         throw UnsupportedPlatformException("sendActionbar")
     }
 
@@ -57,7 +52,7 @@ interface User {
         return hasPermission(permission.permission())
     }
 
-    fun save() {
+    override fun save() {
         SayanVanishAPI.getInstance().addUser(this)
     }
 
