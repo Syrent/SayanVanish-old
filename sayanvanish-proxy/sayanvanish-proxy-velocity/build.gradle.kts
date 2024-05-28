@@ -11,9 +11,10 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.sayandev:stickynote-core:1.0.26")
+    compileOnly("org.sayandev:stickynote-core:1.0.27")
     compileOnly("org.sayandev:stickynote-proxy-velocity:1.0.26")
     compileOnly("com.mysql:mysql-connector-j:8.4.0")
+    compileOnly("org.xerial:sqlite-jdbc:3.46.0.0")
 
     implementation("com.alessiodp.libby:libby-velocity:2.0.0-SNAPSHOT")
 

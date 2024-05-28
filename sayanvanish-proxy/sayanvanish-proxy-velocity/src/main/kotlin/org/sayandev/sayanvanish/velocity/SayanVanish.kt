@@ -8,10 +8,13 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent
 import com.velocitypowered.api.plugin.annotation.DataDirectory
 import com.velocitypowered.api.proxy.ProxyServer
 import org.sayandev.sayanvanish.api.Platform
+import org.sayandev.sayanvanish.api.database.DatabaseConfig
 import org.sayandev.sayanvanish.api.database.databaseConfig
 import org.sayandev.sayanvanish.velocity.api.SayanVanishVelocityAPI
+import org.sayandev.sayanvanish.velocity.config.SettingsConfig
 import org.sayandev.sayanvanish.velocity.config.settings
 import org.sayandev.stickynote.velocity.StickyNotePlugin
+import org.sayandev.stickynote.velocity.WrappedStickyNotePlugin
 import org.sayandev.stickynote.velocity.registerListener
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -27,21 +30,18 @@ class SayanVanish @Inject constructor(
     fun onProxyInitialize(event: ProxyInitializeEvent) {
         downloadLibraries()
 
-        object : StickyNotePlugin("sayanvanish", server, logger, dataDirectory) {
-            override fun onInitialize() {
-                Platform.setAndRegister(Platform("velocity", logger, dataDirectory.toFile()))
+        WrappedStickyNotePlugin(this, PLUGIN_ID, server, logger, dataDirectory).initialize()
+        Platform.setAndRegister(Platform("velocity", logger, dataDirectory.toFile()))
 
-                SayanVanishVelocityAPI(databaseConfig.useCacheWhenAvailable)
+        SayanVanishVelocityAPI(databaseConfig.useCacheWhenAvailable)
 
-                registerListener(VanishManager)
+        registerListener(VanishManager)
 
-                if (settings.general.purgeOnlineHistoryOnStartup) {
-                    for (onlineServer in server.allServers) {
-                        SayanVanishVelocityAPI.getInstance().databaseExecutor.purgeBasic(onlineServer.serverInfo.name)
-                    }
-                    SayanVanishVelocityAPI.getInstance().databaseExecutor.purgeBasic(settings.general.serverId)
-                }
+        if (settings.general.purgeOnlineHistoryOnStartup) {
+            for (onlineServer in server.allServers) {
+                SayanVanishVelocityAPI.getInstance().database.purgeBasic(onlineServer.serverInfo.name)
             }
+            SayanVanishVelocityAPI.getInstance().database.purgeBasic(settings.general.serverId)
         }
     }
 
@@ -73,11 +73,22 @@ class SayanVanish @Inject constructor(
                     .build()
             )
         }
+        try {
+            Class.forName("org.xerial.sqlite-jdbc")
+        } catch (e: Exception) {
+            libraryManager.loadLibrary(
+                Library.builder()
+                    .groupId("org{}xerial")
+                    .artifactId("sqlite-jdbc")
+                    .version("3.46.0.0")
+                    .build()
+            )
+        }
         libraryManager.loadLibrary(
             Library.builder()
                 .groupId("org{}sayandev")
                 .artifactId("stickynote-core")
-                .version("1.0.26")
+                .version("1.0.27")
                 .relocate("org{}sayandev{}stickynote", "org{}sayandev{}sayanvanish{}lib{}stickynote")
                 .build()
         )
@@ -85,7 +96,7 @@ class SayanVanish @Inject constructor(
             Library.builder()
                 .groupId("org{}sayandev")
                 .artifactId("stickynote-proxy-velocity")
-                .version("1.0.26")
+                .version("1.0.27")
                 .relocate("org{}sayandev{}stickynote", "org{}sayandev{}sayanvanish{}lib{}stickynote")
                 .build()
         )

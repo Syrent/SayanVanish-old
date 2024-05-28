@@ -1,5 +1,5 @@
 dependencies {
-    compileOnlyApi("org.sayandev:stickynote-core:1.0.26")
+    compileOnlyApi("org.sayandev:stickynote-core:1.0.27")
 
     testImplementation(kotlin("test"))
     testImplementation("org.xerial:sqlite-jdbc:3.45.3.0")

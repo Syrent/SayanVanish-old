@@ -21,6 +21,8 @@ interface Database<U: User> {
 
     fun getUsers(useCache: Boolean): List<U>
 
+    fun getBasicUsers(useCache: Boolean): List<BasicUser>
+
     fun updateUser(user: U)
     fun updateBasicUser(user: BasicUser)
 

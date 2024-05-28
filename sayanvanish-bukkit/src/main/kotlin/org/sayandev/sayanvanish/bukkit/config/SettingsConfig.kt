@@ -1,15 +1,15 @@
 package org.sayandev.sayanvanish.bukkit.config
 
 import org.bukkit.potion.PotionEffectType
+import org.sayandev.sayanvanish.api.database.DatabaseMethod
+import org.sayandev.sayanvanish.api.database.databaseConfig
+import org.sayandev.sayanvanish.api.database.sql.SQLConfig
 import org.sayandev.sayanvanish.api.feature.Feature
 import org.sayandev.sayanvanish.api.feature.FeatureTypeSerializer
-import org.sayandev.sayanvanish.api.feature.Features
-import org.sayandev.sayanvanish.bukkit.feature.features.FeaturePreventPickup
 import org.sayandev.stickynote.bukkit.pluginDirectory
 import org.sayandev.stickynote.core.configuration.Config
 import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.meta.Setting
-import org.sayandev.stickynote.lib.spongepowered.configurate.serialize.TypeSerializer
 import org.sayandev.stickynote.lib.spongepowered.configurate.serialize.TypeSerializerCollection
 import java.io.File
 

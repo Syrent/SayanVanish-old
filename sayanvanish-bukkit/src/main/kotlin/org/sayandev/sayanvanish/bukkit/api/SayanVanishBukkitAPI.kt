@@ -1,7 +1,6 @@
 package org.sayandev.sayanvanish.bukkit.api
 
 import org.bukkit.OfflinePlayer
-import org.sayandev.sayanvanish.api.Permission
 import org.sayandev.sayanvanish.api.SayanVanishAPI
 import org.sayandev.sayanvanish.api.database.databaseConfig
 import java.util.*

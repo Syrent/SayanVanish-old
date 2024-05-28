@@ -5,6 +5,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.sayandev.sayanvanish.api.SayanVanishAPI
 import org.sayandev.sayanvanish.api.VanishOptions
+import org.sayandev.sayanvanish.api.database.DatabaseConfig
 import org.sayandev.sayanvanish.api.database.databaseConfig
 import org.sayandev.sayanvanish.api.utils.Paste
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.getOrAddUser
@@ -118,7 +119,7 @@ class SayanVanishCommand : StickyCommand("sayanvanish", "vanish", "v") {
                 val sender = context.sender().bukkitSender()
                 language = LanguageConfig.fromConfig() ?: LanguageConfig.defaultConfig()
                 settings = SettingsConfig.fromConfig() ?: SettingsConfig.defaultConfig()
-                SayanVanishAPI.getInstance().databaseExecutor.config.reload()
+                databaseConfig = DatabaseConfig.fromConfig() ?: DatabaseConfig.defaultConfig()
                 sender.sendMessage(language.general.reloaded.component())
             }
             .build())

@@ -1,6 +1,10 @@
 package org.sayandev.sayanvanish.api
 
 import org.sayandev.sayanvanish.api.exception.UnsupportedPlatformException
+import org.sayandev.stickynote.core.utils.Gson
+import org.sayandev.stickynote.lib.gson.JsonObject
+import org.sayandev.stickynote.lib.gson.JsonParser
+import java.util.*
 import kotlin.reflect.KClass
 
 interface User : BasicUser {
@@ -56,7 +60,38 @@ interface User : BasicUser {
         SayanVanishAPI.getInstance().addUser(this)
     }
 
+    override fun toJson(): String {
+        val json = JsonObject()
+        json.addProperty("unique-id", uniqueId.toString())
+        json.addProperty("username", username)
+        json.addProperty("is-vanished", isVanished)
+        json.addProperty("is-online", isOnline)
+        json.addProperty("vanish-level", vanishLevel)
+        json.addProperty("current-options", currentOptions.toJson())
+        return Gson.gson.toJson(json)
+    }
+
     companion object {
+        @JvmStatic
+        fun fromJson(serialized: String): User {
+            val json = JsonParser.parseString(serialized).asJsonObject
+            val uniqueId = json.get("unique-id").asString
+            val username = json.get("username").asString
+            val isVanished = json.get("is-vanished").asBoolean
+            val isOnline = json.get("is-online").asBoolean
+            val vanishLevel = json.get("vanish-level").asInt
+            val currentOptions = VanishOptions.fromJson(json.get("current-options").asString)
+            return object : User {
+                override val uniqueId = UUID.fromString(uniqueId)
+                override var username = username
+                override var isVanished = isVanished
+                override var isOnline = isOnline
+                override var vanishLevel = vanishLevel
+                override var currentOptions = currentOptions
+                override var serverId = Platform.get().id
+            }
+        }
+
         fun User.cast(to: KClass<out User>): Any {
             return to.java.getDeclaredMethod("fromUser", User::class.java).invoke(null, this)
         }

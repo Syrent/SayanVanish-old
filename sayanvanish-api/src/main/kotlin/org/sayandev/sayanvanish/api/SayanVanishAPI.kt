@@ -1,7 +1,9 @@
 package org.sayandev.sayanvanish.api
 
-import org.sayandev.sayanvanish.api.database.DatabaseExecutor
+import org.sayandev.sayanvanish.api.database.DatabaseMethod
+import org.sayandev.sayanvanish.api.database.sql.SQLDatabase
 import org.sayandev.sayanvanish.api.database.databaseConfig
+import org.sayandev.sayanvanish.api.database.redis.RedisDatabase
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -9,9 +11,19 @@ open class SayanVanishAPI<U: User>(val type: KClass<out User>, val useCache: Boo
     constructor(type: KClass<out User>): this(type, false)
     constructor(): this(User::class)
 
-    val databaseExecutor = DatabaseExecutor<U>(databaseConfig).apply {
-        this.connect()
-        this.initialize()
+    val database = when (databaseConfig.method) {
+        DatabaseMethod.SQL -> {
+            SQLDatabase<U>(databaseConfig.sql).apply {
+                this.connect()
+                this.initialize()
+            }
+        }
+        DatabaseMethod.REDIS -> {
+            RedisDatabase<U>(databaseConfig.redis).apply {
+                this.initialize()
+                this.connect()
+            }
+        }
     }
 
     fun getPlatform(): Platform {
@@ -19,7 +31,7 @@ open class SayanVanishAPI<U: User>(val type: KClass<out User>, val useCache: Boo
     }
 
     fun getUsers(): List<U> {
-        return databaseExecutor.getUsers(useCache, type)
+        return database.getUsers(useCache, type)
     }
 
     fun getUsers(predicate: (U) -> Boolean): List<U> {
@@ -27,7 +39,7 @@ open class SayanVanishAPI<U: User>(val type: KClass<out User>, val useCache: Boo
     }
 
     fun getBasicUsers(): List<BasicUser> {
-        return databaseExecutor.getBasicUsers(useCache)
+        return database.getBasicUsers(useCache)
     }
 
     fun getSortedUsers(predicate: (U) -> Int) {
@@ -43,19 +55,19 @@ open class SayanVanishAPI<U: User>(val type: KClass<out User>, val useCache: Boo
     }
 
     fun addUser(user: U) {
-        databaseExecutor.addUser(user)
+        database.addUser(user)
     }
 
     fun addBasicUser(user: BasicUser) {
-        databaseExecutor.addBasicUser(user)
+        database.addBasicUser(user)
     }
 
     fun removeUser(uniqueId: UUID) {
-        databaseExecutor.removeUser(uniqueId)
+        database.removeUser(uniqueId)
     }
 
     fun removeBasicUser(uniqueId: UUID) {
-        databaseExecutor.removeBasicUser(uniqueId)
+        database.removeBasicUser(uniqueId)
     }
 
     fun removeUser(user: U) {
@@ -63,7 +75,7 @@ open class SayanVanishAPI<U: User>(val type: KClass<out User>, val useCache: Boo
     }
 
     fun getUser(uniqueId: UUID): U? {
-        return databaseExecutor.getUser(uniqueId, useCache, type)
+        return database.getUser(uniqueId, useCache, type)
     }
 
     companion object {

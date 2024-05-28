@@ -1,10 +1,12 @@
-package org.sayandev.sayanvanish.api.database
+package org.sayandev.sayanvanish.api.database.sql
 
 import org.sayandev.sayanvanish.api.BasicUser
 import org.sayandev.sayanvanish.api.Platform
 import org.sayandev.sayanvanish.api.User
 import org.sayandev.sayanvanish.api.User.Companion.cast
 import org.sayandev.sayanvanish.api.VanishOptions
+import org.sayandev.sayanvanish.api.database.Database
+import org.sayandev.sayanvanish.api.database.DatabaseMethod
 import org.sayandev.stickynote.core.database.Query
 import org.sayandev.stickynote.core.database.mysql.MySQLCredentials
 import org.sayandev.stickynote.core.database.mysql.MySQLDatabase
@@ -15,8 +17,8 @@ import kotlin.reflect.KClass
 import kotlin.reflect.safeCast
 
 
-class DatabaseExecutor<U : User>(
-    val config: DatabaseConfig
+class SQLDatabase<U : User>(
+    val config: SQLConfig
 ) : Database<U> {
 
     val cache = mutableMapOf<UUID, U>()
@@ -28,19 +30,17 @@ class DatabaseExecutor<U : User>(
         Class.forName("com.mysql.jdbc.Driver")
         "com.mysql.jdbc.Driver"
     }
-    val database: org.sayandev.stickynote.core.database.Database = when (config.method.name.lowercase()) {
-        DatabaseMethod.MYSQL.name.lowercase() -> {
+    val database: org.sayandev.stickynote.core.database.Database = when (config.method) {
+        SQLConfig.SQLMethod.MYSQL -> {
             MySQLDatabase(MySQLCredentials.Companion.mySQLCredentials(config.host, config.port, config.database, config.poolProperties.useSSL, config.username, config.password), config.poolProperties.maximumPoolSize, false, driverClass, config.poolProperties.keepaliveTime, config.poolProperties.connectionTimeout)
         }
-        DatabaseMethod.SQLITE.name.lowercase() -> {
+        SQLConfig.SQLMethod.SQLITE -> {
             SQLiteDatabase(File(Platform.get().rootDirectory, "storage.db"), Platform.get().logger)
         }
         else -> {
             throw NullPointerException("Database method with id `${config.method.name}` doesn't exist, available database types: ${DatabaseMethod.entries.map { it.name.lowercase() }}")
         }
     }
-
-    val type = DatabaseMethod.entries.find { it == config.method } ?: throw IllegalArgumentException("${config.method} is not a valid database method! valid methods: `${DatabaseMethod.entries.joinToString(", ")}`")
 
     override fun initialize() {
         database.runQuery(Query.query("CREATE TABLE IF NOT EXISTS ${config.tablePrefix}users (UUID VARCHAR(64),username VARCHAR(16),server VARCHAR(128),is_vanished INT,is_online INT,vanish_level INT,PRIMARY KEY (UUID));"))
@@ -107,7 +107,7 @@ class DatabaseExecutor<U : User>(
         return users
     }
 
-    fun getBasicUsers(useCache: Boolean): List<BasicUser> {
+    override fun getBasicUsers(useCache: Boolean): List<BasicUser> {
         if (useCache) {
             return basicCache.values.toList()
         }
@@ -134,7 +134,7 @@ class DatabaseExecutor<U : User>(
         cache[user.uniqueId] = user
         if (!hasUser(user.uniqueId, false)) {
             database.runQuery(
-                Query.query("INSERT ${if (type == DatabaseMethod.MYSQL) "IGNORE " else ""}INTO ${config.tablePrefix}users (UUID, username, server, is_vanished, is_online, vanish_level) VALUES (?,?,?,?,?,?);")
+                Query.query("INSERT ${if (config.method == SQLConfig.SQLMethod.MYSQL) "IGNORE " else ""}INTO ${config.tablePrefix}users (UUID, username, server, is_vanished, is_online, vanish_level) VALUES (?,?,?,?,?,?);")
                     .setStatementValue(1, user.uniqueId.toString())
                     .setStatementValue(2, user.username)
                     .setStatementValue(3, user.serverId)
@@ -151,7 +151,7 @@ class DatabaseExecutor<U : User>(
         basicCache[user.uniqueId] = user
         if (!hasBasicUser(user.uniqueId, false)) {
             database.runQuery(
-                Query.query("INSERT ${if (type == DatabaseMethod.MYSQL) "IGNORE " else ""}INTO ${config.tablePrefix}basic_users (UUID, username, server) VALUES (?,?,?);")
+                Query.query("INSERT ${if (config.method == SQLConfig.SQLMethod.MYSQL) "IGNORE " else ""}INTO ${config.tablePrefix}basic_users (UUID, username, server) VALUES (?,?,?);")
                     .setStatementValue(1, user.uniqueId.toString())
                     .setStatementValue(2, user.username)
                     .setStatementValue(3, user.serverId)
@@ -234,6 +234,7 @@ class DatabaseExecutor<U : User>(
     }
 
     override fun updateBasicCache() {
+        val tempCache = mutableMapOf<UUID, BasicUser>()
         val result = database.runQuery(Query.query("SELECT * FROM ${config.tablePrefix}basic_users;")).result ?: return
         while (result.next()) {
             val user = BasicUser.create(
@@ -241,8 +242,10 @@ class DatabaseExecutor<U : User>(
                 result.getString("username"),
                 result.getString("server")
             )
-            basicCache[user.uniqueId] = user
+            tempCache[user.uniqueId] = user
         }
+        basicCache.clear()
+        basicCache.putAll(tempCache)
     }
 
 }
