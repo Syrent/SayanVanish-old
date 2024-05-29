@@ -1,27 +1,28 @@
 package org.sayandev.sayanvanish.api.feature
 
-import org.sayandev.sayanvanish.api.User
-import org.sayandev.sayanvanish.api.User.Companion.cast
 import org.sayandev.stickynote.lib.spongepowered.configurate.ConfigurationNode
+import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.sayandev.stickynote.lib.spongepowered.configurate.serialize.TypeSerializer
 import java.lang.reflect.Type
 
-abstract class Feature(val id: String) {
+@ConfigSerializable
+abstract class Feature {
 
-    open var isEnabled: Boolean = false
+    abstract val id: String
+    abstract var enabled: Boolean
+    @Transient open var condition: Boolean = true
+
+    open fun isActive(): Boolean {
+        return enabled && condition
+    }
 
     open fun enable() {
-        isEnabled = true
+        enabled = true
     }
 
     open fun disable() {
-        isEnabled = false
+        enabled = false
     }
-
-    abstract fun serialize(node: ConfigurationNode)
-
-//    abstract fun <T: Feature> deserialize(node: ConfigurationNode): T
-
 }
 
 class FeatureTypeSerializer : TypeSerializer<Feature> {

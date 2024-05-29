@@ -1,11 +1,10 @@
 package org.sayandev.sayanvanish.bukkit.feature
 
-import org.bukkit.event.Listener
-import org.sayandev.sayanvanish.api.feature.Feature
+import org.sayandev.stickynote.bukkit.hasPlugin
 import org.sayandev.stickynote.bukkit.registerListener
 import org.sayandev.stickynote.bukkit.unregisterListener
 
-abstract class ListenedFeature : Feature(), Listener {
+abstract class HookFeature(val plugin: String) : ListenedFeature() {
 
     override fun enable() {
         if (!condition) return
@@ -17,5 +16,14 @@ abstract class ListenedFeature : Feature(), Listener {
         unregisterListener(this)
         super.disable()
     }
+
+    fun hasPlugin(): Boolean {
+        return hasPlugin(plugin)
+    }
+
+    override fun isActive(): Boolean {
+        return super.isActive() && hasPlugin()
+    }
+
 
 }

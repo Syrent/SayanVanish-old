@@ -1,11 +1,11 @@
 package org.sayandev.sayanvanish.bukkit.config
 
 import org.bukkit.potion.PotionEffectType
-import org.sayandev.sayanvanish.api.database.DatabaseMethod
-import org.sayandev.sayanvanish.api.database.databaseConfig
-import org.sayandev.sayanvanish.api.database.sql.SQLConfig
 import org.sayandev.sayanvanish.api.feature.Feature
 import org.sayandev.sayanvanish.api.feature.FeatureTypeSerializer
+import org.sayandev.sayanvanish.api.feature.Features
+import org.sayandev.sayanvanish.bukkit.feature.HookFeature
+import org.sayandev.sayanvanish.bukkit.feature.ListenedFeature
 import org.sayandev.stickynote.bukkit.pluginDirectory
 import org.sayandev.stickynote.core.configuration.Config
 import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.ConfigSerializable
@@ -43,14 +43,12 @@ data class SettingsConfig(
         val effects: List<String> = listOf(PotionEffectType.NIGHT_VISION.key.key), // TODO
         val level: Level = Level(),
         val sneakToggleGameMode: Boolean = true,
-        val actionbar: Actionbar = Actionbar(),
         val state: State = State(),
         val fly: Fly = Fly(),
         val invulnerability: Invunerability = Invunerability(),
         val prevention: Prevention = Prevention(),
         val joinLeaveMessage: JoinLeaveMessage = JoinLeaveMessage(),
-        val hooks: Hooks = Hooks(),
-//        val features: List<Feature> = Features.features(),
+        val features: MutableList<Feature> = Features.features,
     ) {
         @ConfigSerializable
         data class JoinLeaveMessage(
@@ -85,36 +83,12 @@ data class SettingsConfig(
 
         @ConfigSerializable
         data class Prevention(
-            val pickup: Boolean = true,
-            val blockPlace: Boolean = true,
-            val blockBreak: Boolean = true,
-            val interact: Boolean = false,
-            val advancement: Boolean = true,
-            val damage: Boolean = true,
-            val mobTarget: Boolean = true,
-            val push: Boolean = false,
-            val pressurePlateTrigger: Boolean = true,
-            val blockGrief: Boolean = true,
             val playerTablistPackets: Boolean = true, // TODO
-            val sculkSensorActivation: Boolean = true,
             val containerOpenPacket: Boolean = true, // TODO
-            val dripLeaf: Boolean = true,
-            val raidTrigger: Boolean = true,
-            val mobSpawning: Boolean = true,
-            val serverListCount: Boolean = true
-        )
-
-        @ConfigSerializable
-        data class Actionbar(
-            val enabled: Boolean = true,
-            val content: String = "<gray>You are currenly vanished!",
-            val repeatEvery: Long = 20
         )
 
         @ConfigSerializable
         data class Hooks(
-            val essentials: Essentials = Essentials(),
-            val dynmap: Dynmap = Dynmap(), // TODO
             val squareMap: SquareMap = SquareMap(),
             @Setting("placeholder-api") val placeholderAPI: PlaceholderAPI = PlaceholderAPI(), // TODO
             val citizens: Citizens = Citizens(), // TODO

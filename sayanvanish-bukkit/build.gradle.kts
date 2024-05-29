@@ -1,6 +1,6 @@
 plugins {
     id("xyz.jpenilla.run-paper") version "2.3.0"
-    id("io.papermc.paperweight.userdev") version "1.7.0"
+    id("io.papermc.paperweight.userdev") version "1.7.1"
 }
 
 repositories {
@@ -30,6 +30,9 @@ repositories {
 
     // PlaceholderAPI
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
+
+    // dynmap
+    maven("https://repo.mikeprimm.com/")
 }
 
 dependencies {
@@ -38,6 +41,8 @@ dependencies {
 
     compileOnly("org.sayandev:stickynote-core:1.0.27")
     compileOnly("org.sayandev:stickynote-bukkit:1.0.27")
+    // dynmap api doesn't work
+//    compileOnly("us.dynmap:dynmap-api:3.4-beta-3")
     implementation("com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT")
 
     implementation(project(":sayanvanish-api"))

@@ -118,7 +118,15 @@ class SayanVanishCommand : StickyCommand("sayanvanish", "vanish", "v") {
             .handler { context ->
                 val sender = context.sender().bukkitSender()
                 language = LanguageConfig.fromConfig() ?: LanguageConfig.defaultConfig()
+                settings.vanish.features.forEach { feature ->
+                    feature.enabled = false
+                    feature.disable()
+                }
+                settings.vanish.features.clear()
                 settings = SettingsConfig.fromConfig() ?: SettingsConfig.defaultConfig()
+                settings.vanish.features.forEach {
+                    if (it.enabled) it.enable()
+                }
                 databaseConfig = DatabaseConfig.fromConfig() ?: DatabaseConfig.defaultConfig()
                 sender.sendMessage(language.general.reloaded.component())
             }

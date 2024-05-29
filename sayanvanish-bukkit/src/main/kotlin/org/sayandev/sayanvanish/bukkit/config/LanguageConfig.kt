@@ -20,7 +20,7 @@ data class LanguageConfig(
 
     @ConfigSerializable
     data class General(
-        val reloaded: String = "<green>Plugin successfully reloaded!",
+        val reloaded: String = "<green>Plugin successfully reloaded. <red>Please note that some changes may require a server restart to take effect. Subsequent reloads may cause issues.",
         val playerNotFound: String = "<red>Player not found",
     )
 

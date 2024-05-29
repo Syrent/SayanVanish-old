@@ -23,7 +23,6 @@ import org.sayandev.stickynote.bukkit.utils.AdventureUtils.sendActionbar
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.sendMessage
 import org.sayandev.stickynote.lib.kyori.adventure.text.Component
 import org.sayandev.stickynote.lib.kyori.adventure.text.minimessage.tag.resolver.Placeholder
-import xyz.jpenilla.squaremap.api.SquaremapProvider
 import java.util.*
 
 open class BukkitUser(
@@ -86,10 +85,6 @@ open class BukkitUser(
 
         hideUser()
 
-        if (hasPlugin("squaremap")) {
-            player()?.uniqueId?.let { SquaremapProvider.get().playerManager().hide(it, true) }
-        }
-
         super.vanish(options)
 
         sendMessage(language.vanish.vanishStateUpdate.component(Placeholder.parsed("state", stateText())))
@@ -126,14 +121,8 @@ open class BukkitUser(
             allowPush()
         }
 
-        player()?.sendActionbar(Component.empty())
-
         player()?.setMetadata("vanished", FixedMetadataValue(plugin, false))
         showUser()
-
-        if (hasPlugin("squaremap")) {
-            player()?.uniqueId?.let { SquaremapProvider.get().playerManager().show(it, true) }
-        }
 
         super.unVanish(options)
 

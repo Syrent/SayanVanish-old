@@ -1,5 +1,6 @@
 package org.sayandev.sayanvanish.api
 
+import org.sayandev.sayanvanish.api.feature.RegisteredFeatureHandler
 import java.io.File
 import java.util.logging.Logger
 
@@ -20,7 +21,6 @@ data class Platform(
 
         @JvmStatic
         fun register() {
-//            RegisteredFeatureHandler.process()
         }
 
         @JvmStatic

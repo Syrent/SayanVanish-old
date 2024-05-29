@@ -1,15 +1,15 @@
 package org.sayandev.sayanvanish.api.feature
 
 object Features {
-    val features = mutableMapOf<Class<*>, Feature>()
+    val features = mutableListOf<Feature>()
 
     @JvmStatic
     fun addFeature(feature: Feature) {
-        features[feature.javaClass] = feature
+        features.add(feature)
     }
 
     @JvmStatic
     fun features(): List<Feature> {
-        return features.values.toList()
+        return features
     }
 }

@@ -1,14 +1,30 @@
-package org.sayandev.sayanvanish.bukkit.hook.hooks
+package org.sayandev.sayanvanish.bukkit.feature.features.hook
 
+import org.sayandev.sayanvanish.bukkit.feature.HookFeature
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
 import org.bukkit.OfflinePlayer
 import org.sayandev.sayanvanish.api.SayanVanishAPI
+import org.sayandev.sayanvanish.api.feature.RegisteredFeature
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.user
 import org.sayandev.stickynote.bukkit.StickyNote
 import org.sayandev.stickynote.bukkit.onlinePlayers
 
-class HookPlaceholderAPI : PlaceholderExpansion() {
+@RegisteredFeature
+class FeatureHookPlaceholderAPI(
+    override val id: String = "hook_placeholderapi",
+    override var enabled: Boolean = true,
+) : HookFeature("PlaceholderAPI") {
+
+    override fun enable() {
+        if (hasPlugin()) {
+            HookPlaceholderAPI().register()
+        }
+        super.enable()
+    }
+}
+
+private class HookPlaceholderAPI : PlaceholderExpansion() {
     override fun getIdentifier(): String {
         return StickyNote.plugin().description.name.lowercase()
     }

@@ -7,12 +7,13 @@ import org.sayandev.sayanvanish.api.Platform
 import org.sayandev.sayanvanish.api.database.DatabaseMethod
 import org.sayandev.sayanvanish.api.database.databaseConfig
 import org.sayandev.sayanvanish.api.database.sql.SQLConfig
+import org.sayandev.sayanvanish.api.feature.Features
+import org.sayandev.sayanvanish.api.feature.RegisteredFeatureHandler
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI
 import org.sayandev.sayanvanish.bukkit.command.SayanVanishCommand
 import org.sayandev.sayanvanish.bukkit.config.LanguageConfig
 import org.sayandev.sayanvanish.bukkit.config.SettingsConfig
 import org.sayandev.sayanvanish.bukkit.config.settings
-import org.sayandev.sayanvanish.bukkit.hook.Hooks
 import org.sayandev.stickynote.bukkit.StickyNote
 import org.sayandev.stickynote.bukkit.WrappedStickyNotePlugin
 import org.sayandev.stickynote.bukkit.pluginDirectory
@@ -36,7 +37,13 @@ open class SayanVanish : JavaPlugin() {
         LanguageConfig
 
         VanishManager
-        Hooks
+
+        RegisteredFeatureHandler.process(settings.config.node("vanish", "features"))
+        settings.vanish.features.addAll(Features.features().filter { !settings.vanish.features.map { it.id }.contains(it.id) })
+        settings.save()
+        settings.vanish.features.forEach {
+            if (it.enabled) it.enable()
+        }
 
         SayanVanishCommand()
 
@@ -46,6 +53,7 @@ open class SayanVanish : JavaPlugin() {
     }
 
     override fun onDisable() {
+        SayanVanishBukkitAPI.getInstance().database.disconnect()
         StickyNote.shutdown()
     }
 
