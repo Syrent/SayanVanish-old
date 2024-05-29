@@ -40,7 +40,7 @@ abstract class Feature(
     companion object {
         fun createFromConfig(type: Class<out Feature>): Feature {
             val freshInstance = type.getDeclaredConstructor().newInstance()
-            val instance = getConfig(File(File(Platform.get().rootDirectory, "features"), "${freshInstance.id}.yml"), null)?.get(type) ?: freshInstance
+            val instance = getConfigFromFile(File(File(Platform.get().rootDirectory, "features"), "${freshInstance.id}.yml"), null)?.get(type) ?: freshInstance
             if (instance.enabled) {
                 instance.enable()
             }
