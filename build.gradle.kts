@@ -22,7 +22,7 @@ allprojects {
 
     repositories {
         mavenCentral()
-        mavenLocal()
+//        mavenLocal()
 
         // Takenaka
         maven("https://repo.screamingsandals.org/public")
