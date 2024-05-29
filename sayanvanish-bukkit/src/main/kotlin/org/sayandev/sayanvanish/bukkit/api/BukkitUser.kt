@@ -2,10 +2,8 @@ package org.sayandev.sayanvanish.bukkit.api
 
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
-import org.bukkit.entity.Creature
 import org.bukkit.entity.Player
 import org.bukkit.metadata.FixedMetadataValue
-import org.bukkit.scoreboard.Team
 import org.sayandev.sayanvanish.api.Permission
 import org.sayandev.sayanvanish.api.Platform
 import org.sayandev.sayanvanish.api.User
@@ -16,7 +14,6 @@ import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.user
 import org.sayandev.sayanvanish.bukkit.api.event.BukkitUserUnVanishEvent
 import org.sayandev.sayanvanish.bukkit.api.event.BukkitUserVanishEvent
 import org.sayandev.sayanvanish.bukkit.config.language
-import org.sayandev.sayanvanish.bukkit.config.settings
 import org.sayandev.stickynote.bukkit.*
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.component
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.sendActionbar
@@ -60,27 +57,6 @@ open class BukkitUser(
         player()?.isCollidable = false
         player()?.isSleepingIgnored = true
 
-        if (hasPermission(Permission.FLY) || settings.vanish.fly.enabled) {
-            player()?.allowFlight = true
-            player()?.isFlying = true
-        }
-        if (hasPermission(Permission.INVULNERABLE) || settings.vanish.invulnerability.enabled) {
-            player()?.isInvulnerable = true
-        }
-
-        if (settings.vanish.prevention.push) {
-            denyPush()
-        }
-
-        if (settings.vanish.prevention.mobTarget) {
-            player()?.world?.entities?.stream()
-                ?.filter { entity -> entity is Creature }
-                ?.map { entity -> entity as Creature }
-                ?.filter { mob -> mob.target != null }
-                ?.filter { mob -> player()?.uniqueId == mob.target?.uniqueId }
-                ?.forEach { mob -> mob.target = null }
-        }
-
         player()?.setMetadata("vanished", FixedMetadataValue(plugin, true))
 
         hideUser()
@@ -108,18 +84,6 @@ open class BukkitUser(
 
         player()?.isCollidable = true
         player()?.isSleepingIgnored = false
-
-        if (!hasPermission(Permission.FLY) && settings.vanish.fly.disableOnReappear) {
-            player()?.allowFlight = false
-            player()?.isFlying = false
-        }
-        if (hasPermission(Permission.INVULNERABLE) || settings.vanish.invulnerability.disableOnReappear) {
-            player()?.isInvulnerable = false
-        }
-
-        if (settings.vanish.prevention.push) {
-            allowPush()
-        }
 
         player()?.setMetadata("vanished", FixedMetadataValue(plugin, false))
         showUser()
@@ -164,10 +128,6 @@ open class BukkitUser(
         if (target.user() == null && (target.isOp || target.hasPermission(Permission.VANISH.permission()))) {
             target.getOrCreateUser()
         }
-        val playerVanishLevel = target.user()?.vanishLevel ?: 0
-        if (playerVanishLevel < vanishLevel || !settings.vanish.level.enabled) {
-            player()?.let { target.hidePlayer(plugin, it) }
-        }
     }
 
     fun showUser() {
@@ -183,21 +143,6 @@ open class BukkitUser(
 
     fun showUser(target: Player) {
         player()?.let { target.showPlayer(plugin, it) }
-    }
-
-    fun denyPush() {
-        val player = player() ?: return
-        var team = player.scoreboard.getTeam("Vanished")
-        if (team == null) {
-            team = player.scoreboard.registerNewTeam("Vanished")
-        }
-        team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER)
-        team.addEntry(player.name)
-    }
-
-    fun allowPush() {
-        val player = player() ?: return
-        player.scoreboard.getTeam("Vanished")?.removeEntry(player.name)
     }
 
     companion object {

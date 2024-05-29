@@ -6,14 +6,14 @@ import org.bukkit.event.EventHandler
 import org.sayandev.sayanvanish.api.feature.RegisteredFeature
 import org.sayandev.sayanvanish.bukkit.feature.HookFeature
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.user
+import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.ConfigSerializable
 
 @RegisteredFeature
+@ConfigSerializable
 class FeatureHookEssentials(
-    override val id: String = "hook_essentials",
-    override var enabled: Boolean = true,
     val preventAfkStatusChange: Boolean = true,
     val preventPrivateMessage: Boolean = true
-) : HookFeature("Essentials") {
+) : HookFeature("hook_essentials", "Essentials") {
 
     override fun enable() {
         if (hasPlugin()) {

@@ -11,14 +11,14 @@ import org.sayandev.stickynote.bukkit.StickyNote.runSync
 import org.sayandev.stickynote.bukkit.onlinePlayers
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.component
 import org.sayandev.stickynote.lib.kyori.adventure.text.Component
+import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.ConfigSerializable
 
 @RegisteredFeature
+@ConfigSerializable
 class FeatureActionbar(
-    override val id: String = "actionbar",
-    override var enabled: Boolean = true,
     val content: String = "<gray>You are currenly vanished!",
     val repeatEvery: Long = 20,
-) : ListenedFeature() {
+) : ListenedFeature("actionbar") {
 
     @EventHandler
     private fun onVanish(event: BukkitUserVanishEvent) {

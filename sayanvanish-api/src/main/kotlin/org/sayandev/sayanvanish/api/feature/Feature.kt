@@ -1,15 +1,28 @@
 package org.sayandev.sayanvanish.api.feature
 
-import org.sayandev.stickynote.lib.spongepowered.configurate.ConfigurationNode
+import org.sayandev.sayanvanish.api.Platform
+import org.sayandev.sayanvanish.api.feature.category.FeatureCategories
+import org.sayandev.stickynote.core.configuration.Config
 import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.ConfigSerializable
-import org.sayandev.stickynote.lib.spongepowered.configurate.serialize.TypeSerializer
-import java.lang.reflect.Type
+import java.io.File
 
 @ConfigSerializable
-abstract class Feature {
+abstract class Feature(
+    val id: String,
+    var enabled: Boolean = true,
+    val category: FeatureCategories = FeatureCategories.DEFAULT
+) : Config(
+    when (category.directory) {
+        null -> {
+            File(Platform.get().rootDirectory, "features")
+        }
+        else -> {
+            File(File(Platform.get().rootDirectory, "features"), category.directory)
+        }
+    },
+    "${id}.yml"
+) {
 
-    abstract val id: String
-    abstract var enabled: Boolean
     @Transient open var condition: Boolean = true
 
     open fun isActive(): Boolean {
@@ -23,14 +36,15 @@ abstract class Feature {
     open fun disable() {
         enabled = false
     }
-}
 
-class FeatureTypeSerializer : TypeSerializer<Feature> {
-    override fun deserialize(type: Type, node: ConfigurationNode): Feature {
-        return Features.features().first { it.id == node.node("id").string }
-    }
-
-    override fun serialize(type: Type, obj: Feature?, node: ConfigurationNode) {
-        obj!!.javaClass.getDeclaredMethod("serialize", ConfigurationNode::class.java).invoke(obj, node)
+    companion object {
+        fun createFromConfig(type: Class<out Feature>): Feature {
+            val freshInstance = type.getDeclaredConstructor().newInstance()
+            val instance = getConfig(File(File(Platform.get().rootDirectory, "features"), "${freshInstance.id}.yml"), null)?.get(type) ?: freshInstance
+            if (instance.enabled) {
+                instance.enable()
+            }
+            return instance
+        }
     }
 }

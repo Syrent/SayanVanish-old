@@ -9,12 +9,11 @@ import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.user
 import org.sayandev.stickynote.bukkit.StickyNote
 import org.sayandev.stickynote.bukkit.onlinePlayers
+import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.ConfigSerializable
 
 @RegisteredFeature
-class FeatureHookPlaceholderAPI(
-    override val id: String = "hook_placeholderapi",
-    override var enabled: Boolean = true,
-) : HookFeature("PlaceholderAPI") {
+@ConfigSerializable
+class FeatureHookPlaceholderAPI: HookFeature("hook_placeholderapi", "PlaceholderAPI") {
 
     override fun enable() {
         if (hasPlugin()) {

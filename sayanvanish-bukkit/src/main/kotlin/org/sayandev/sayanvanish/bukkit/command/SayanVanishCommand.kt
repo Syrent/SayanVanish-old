@@ -7,6 +7,8 @@ import org.sayandev.sayanvanish.api.SayanVanishAPI
 import org.sayandev.sayanvanish.api.VanishOptions
 import org.sayandev.sayanvanish.api.database.DatabaseConfig
 import org.sayandev.sayanvanish.api.database.databaseConfig
+import org.sayandev.sayanvanish.api.feature.Features
+import org.sayandev.sayanvanish.api.feature.RegisteredFeatureHandler
 import org.sayandev.sayanvanish.api.utils.Paste
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.getOrAddUser
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.user
@@ -118,15 +120,21 @@ class SayanVanishCommand : StickyCommand("sayanvanish", "vanish", "v") {
             .handler { context ->
                 val sender = context.sender().bukkitSender()
                 language = LanguageConfig.fromConfig() ?: LanguageConfig.defaultConfig()
-                settings.vanish.features.forEach { feature ->
+                Features.features.forEach { feature ->
                     feature.enabled = false
                     feature.disable()
                 }
-                settings.vanish.features.clear()
-                settings = SettingsConfig.fromConfig() ?: SettingsConfig.defaultConfig()
-                settings.vanish.features.forEach {
-                    if (it.enabled) it.enable()
+                Features.features.clear()
+                RegisteredFeatureHandler.process()
+                /*settings.vanish.features.forEach { feature ->
+                    feature.enabled = false
+                    feature.disable()
                 }
+                settings.vanish.features.clear()*/
+                settings = SettingsConfig.fromConfig() ?: SettingsConfig.defaultConfig()
+                /*settings.vanish.features.forEach {
+                    if (it.enabled) it.enable()
+                }*/
                 databaseConfig = DatabaseConfig.fromConfig() ?: DatabaseConfig.defaultConfig()
                 sender.sendMessage(language.general.reloaded.component())
             }

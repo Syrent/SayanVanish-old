@@ -5,13 +5,12 @@ import org.sayandev.sayanvanish.api.feature.RegisteredFeature
 import org.sayandev.sayanvanish.bukkit.api.event.BukkitUserUnVanishEvent
 import org.sayandev.sayanvanish.bukkit.api.event.BukkitUserVanishEvent
 import org.sayandev.sayanvanish.bukkit.feature.HookFeature
+import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.ConfigSerializable
 import xyz.jpenilla.squaremap.api.SquaremapProvider
 
 @RegisteredFeature
-class FeatureHookSquareMap(
-    override val id: String = "hook_squaremap",
-    override var enabled: Boolean = true,
-) : HookFeature("squaremap") {
+@ConfigSerializable
+class FeatureHookSquareMap: HookFeature("hook_squaremap", "squaremap") {
 
     override fun enable() {
         if (hasPlugin()) {

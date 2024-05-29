@@ -4,14 +4,14 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.sayandev.sayanvanish.api.feature.RegisteredFeature
+import org.sayandev.sayanvanish.api.feature.category.FeatureCategories
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.user
 import org.sayandev.sayanvanish.bukkit.feature.ListenedFeature
+import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.ConfigSerializable
 
 @RegisteredFeature
-class FeaturePreventBlockGrief(
-    override val id: String = "prevent_block_grief",
-    override var enabled: Boolean = true
-) : ListenedFeature() {
+@ConfigSerializable
+class FeaturePreventBlockGrief: ListenedFeature("prevent_block_grief", category = FeatureCategories.PREVENTION) {
 
     @EventHandler
     private fun onChangeBlock(event: EntityChangeBlockEvent) {

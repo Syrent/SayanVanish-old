@@ -8,12 +8,11 @@ import org.sayandev.sayanvanish.api.feature.RegisteredFeature
 import org.sayandev.sayanvanish.bukkit.feature.ListenedFeature
 import org.sayandev.stickynote.bukkit.StickyNote.runSync
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.user
+import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.ConfigSerializable
 
 @RegisteredFeature
-class FeatureSneakToggleGameMode(
-    override val id: String = "sneak_toggle_gamemode",
-    override var enabled: Boolean = true
-) : ListenedFeature() {
+@ConfigSerializable
+class FeatureSneakToggleGameMode: ListenedFeature("sneak_toggle_gamemode") {
 
     @Transient val sneakMap = mutableMapOf<Player, GameMode>()
     @Transient val sneakList = mutableListOf<Player>()

@@ -4,18 +4,19 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.sayandev.sayanvanish.api.feature.RegisteredFeature
+import org.sayandev.sayanvanish.api.feature.category.FeatureCategories
 import org.sayandev.sayanvanish.bukkit.api.SayanVanishBukkitAPI.Companion.user
 import org.sayandev.sayanvanish.bukkit.feature.ListenedFeature
+import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.ConfigSerializable
 import kotlin.text.contains
 
 @RegisteredFeature
+@ConfigSerializable
 class FeaturePreventInteract(
-    override val id: String = "prevent_interact_event",
-    override var enabled: Boolean = true,
     val pressurePlateTrigger: Boolean = true,
     val dripLeaf: Boolean = true,
     val interact: Boolean = true,
-) : ListenedFeature() {
+) : ListenedFeature("prevent_interact_event", category = FeatureCategories.PREVENTION) {
 
     @EventHandler
     private fun onInteract(event: PlayerInteractEvent) {

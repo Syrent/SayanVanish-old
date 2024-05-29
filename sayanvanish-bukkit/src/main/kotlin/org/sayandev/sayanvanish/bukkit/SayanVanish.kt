@@ -18,6 +18,7 @@ import org.sayandev.stickynote.bukkit.StickyNote
 import org.sayandev.stickynote.bukkit.WrappedStickyNotePlugin
 import org.sayandev.stickynote.bukkit.pluginDirectory
 import org.sayandev.stickynote.bukkit.runAsync
+import org.sayandev.stickynote.core.configuration.Config
 
 open class SayanVanish : JavaPlugin() {
 
@@ -38,12 +39,12 @@ open class SayanVanish : JavaPlugin() {
 
         VanishManager
 
-        RegisteredFeatureHandler.process(settings.config.node("vanish", "features"))
-        settings.vanish.features.addAll(Features.features().filter { !settings.vanish.features.map { it.id }.contains(it.id) })
+        RegisteredFeatureHandler.process()
+        /*settings.vanish.features.addAll(Features.features().filter { !settings.vanish.features.map { it.id }.contains(it.id) })
         settings.save()
         settings.vanish.features.forEach {
             if (it.enabled) it.enable()
-        }
+        }*/
 
         SayanVanishCommand()
 
