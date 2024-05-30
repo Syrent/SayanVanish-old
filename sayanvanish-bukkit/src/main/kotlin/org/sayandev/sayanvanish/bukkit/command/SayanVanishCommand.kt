@@ -1,5 +1,7 @@
 package org.sayandev.sayanvanish.bukkit.command
 
+import org.bukkit.Bukkit
+import org.bukkit.GameMode
 import org.bukkit.OfflinePlayer
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -17,6 +19,8 @@ import org.sayandev.sayanvanish.bukkit.config.SettingsConfig
 import org.sayandev.sayanvanish.bukkit.config.language
 import org.sayandev.sayanvanish.bukkit.config.settings
 import org.sayandev.sayanvanish.bukkit.utils.ServerUtils
+import org.sayandev.stickynote.bukkit.NMSUtils
+import org.sayandev.stickynote.bukkit.PacketUtils
 import org.sayandev.stickynote.bukkit.command.StickyCommand
 import org.sayandev.stickynote.bukkit.command.interfaces.SenderExtension
 import org.sayandev.stickynote.bukkit.pluginDirectory
@@ -24,6 +28,7 @@ import org.sayandev.stickynote.bukkit.runAsync
 import org.sayandev.stickynote.bukkit.runSync
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.component
 import org.sayandev.stickynote.bukkit.utils.AdventureUtils.sendMessage
+import org.sayandev.stickynote.core.math.Vector3
 import org.sayandev.stickynote.lib.incendo.cloud.bukkit.parser.OfflinePlayerParser
 import org.sayandev.stickynote.lib.incendo.cloud.component.CommandComponent
 import org.sayandev.stickynote.lib.incendo.cloud.parser.flag.CommandFlag
@@ -162,7 +167,7 @@ class SayanVanishCommand : StickyCommand("sayanvanish", "vanish", "v") {
                 user.vanishLevel = context.get("level")
                 user.save()
 
-                sender.sendMessage(language.vanish.levelSet.component(Placeholder.unparsed("level", user.vanishLevel.toString())))
+                sender.sendMessage(language.vanish.levelSet.component(Placeholder.unparsed("level", user.vanishLevel.toString()), Placeholder.unparsed("player", user.username)))
             }
             .build())
 

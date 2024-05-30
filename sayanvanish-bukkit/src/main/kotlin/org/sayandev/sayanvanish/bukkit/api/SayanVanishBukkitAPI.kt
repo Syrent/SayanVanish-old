@@ -5,6 +5,8 @@ import org.sayandev.sayanvanish.api.SayanVanishAPI
 import org.sayandev.sayanvanish.api.database.databaseConfig
 import java.util.*
 
+val database = SayanVanishBukkitAPI.getInstance().database
+
 class SayanVanishBukkitAPI(useCache: Boolean) : SayanVanishAPI<BukkitUser>(BukkitUser::class, useCache) {
     companion object {
         private val cachedInstance = SayanVanishBukkitAPI(true)

@@ -5,6 +5,8 @@ import org.sayandev.sayanvanish.api.SayanVanishAPI
 import org.sayandev.sayanvanish.api.database.databaseConfig
 import java.util.UUID
 
+val database = SayanVanishVelocityAPI.getInstance().database
+
 class SayanVanishVelocityAPI(useCache: Boolean) : SayanVanishAPI<VelocityUser>(VelocityUser::class, useCache) {
     companion object {
         private val cachedInstance = SayanVanishVelocityAPI(true)

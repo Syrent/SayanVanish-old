@@ -6,6 +6,7 @@ import org.sayandev.sayanvanish.api.User.Companion.cast
 import org.sayandev.sayanvanish.api.database.Database
 import redis.clients.jedis.*
 import java.util.*
+import java.util.function.Consumer
 import kotlin.reflect.KClass
 import kotlin.reflect.safeCast
 
@@ -117,6 +118,22 @@ class RedisDatabase<U : User>(
 
     override fun updateBasicUser(user: BasicUser) {
         addBasicUser(user)
+    }
+
+    override fun isInQueue(uniqueId: UUID, result: Consumer<Boolean>) {
+        redis.get("queue:$uniqueId")?.let { result.accept(true) } ?: result.accept(false)
+    }
+
+    override fun addToQueue(uniqueId: UUID, vanished: Boolean) {
+        redis.set("queue:$uniqueId", vanished.toString())
+    }
+
+    override fun removeFromQueue(uniqueId: UUID) {
+        redis.del("queue:$uniqueId")
+    }
+
+    override fun getFromQueue(uniqueId: UUID, result: Consumer<Boolean>) {
+        redis.get("queue:$uniqueId")?.let { result.accept(it.toBoolean()) } ?: result.accept(false)
     }
 
     override fun purgeCache() {

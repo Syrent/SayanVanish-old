@@ -11,8 +11,10 @@ import org.sayandev.stickynote.core.database.Query
 import org.sayandev.stickynote.core.database.mysql.MySQLCredentials
 import org.sayandev.stickynote.core.database.mysql.MySQLDatabase
 import org.sayandev.stickynote.core.database.sqlite.SQLiteDatabase
+import sun.awt.www.content.audio.wav
 import java.io.File
 import java.util.*
+import java.util.function.Consumer
 import kotlin.reflect.KClass
 import kotlin.reflect.safeCast
 
@@ -45,6 +47,7 @@ class SQLDatabase<U : User>(
     override fun initialize() {
         database.runQuery(Query.query("CREATE TABLE IF NOT EXISTS ${config.tablePrefix}users (UUID VARCHAR(64),username VARCHAR(16),server VARCHAR(128),is_vanished INT,is_online INT,vanish_level INT,PRIMARY KEY (UUID));"))
         database.runQuery(Query.query("CREATE TABLE IF NOT EXISTS ${config.tablePrefix}basic_users (UUID VARCHAR(64),username VARCHAR(16),server VARCHAR(128),PRIMARY KEY (UUID));"))
+        database.runQuery(Query.query("CREATE TABLE IF NOT EXISTS ${config.tablePrefix}queue (UUID VARCHAR(64), vanished VARCHAR(16),PRIMARY KEY (UUID));"))
     }
 
     override fun connect() {
@@ -215,6 +218,38 @@ class SQLDatabase<U : User>(
         )
     }
 
+    override fun isInQueue(uniqueId: UUID, inQueue: Consumer<Boolean>) {
+        database.queueQuery(Query.query("SELECT * FROM ${config.tablePrefix}queue WHERE UUID = ?;").setStatementValue(1, uniqueId.toString())).completableFuture.whenComplete { result, error ->
+            error?.printStackTrace()
+
+            val hasNext = result.next()
+            inQueue.accept(hasNext)
+        }
+    }
+
+    override fun addToQueue(uniqueId: UUID, vanished: Boolean) {
+        isInQueue(uniqueId) { inQueue ->
+            if (!inQueue) {
+                database.queueQuery(Query.query("INSERT INTO ${config.tablePrefix}queue (UUID, vanished) VALUES (?,?);").setStatementValue(1, uniqueId.toString()).setStatementValue(2, vanished.toString()))
+            } else {
+                database.queueQuery(Query.query("UPDATE ${config.tablePrefix}queue SET vanished = ? WHERE UUID = ?;").setStatementValue(1, vanished.toString()).setStatementValue(2, uniqueId.toString()))
+            }
+        }
+    }
+
+    override fun getFromQueue(uniqueId: UUID, result: Consumer<Boolean>) {
+        database.queueQuery(Query.query("SELECT * FROM ${config.tablePrefix}queue WHERE UUID = ?;").setStatementValue(1, uniqueId.toString())).completableFuture.whenComplete { resultSet, error ->
+            error?.printStackTrace()
+
+            if (!resultSet.next()) result.accept(false)
+            result.accept(resultSet.getString("vanished").toBoolean())
+        }
+    }
+
+    override fun removeFromQueue(uniqueId: UUID) {
+        database.queueQuery(Query.query("DELETE FROM ${config.tablePrefix}queue WHERE UUID = ?;").setStatementValue(1, uniqueId.toString()))
+    }
+
     override fun purgeCache() {
         cache.clear()
         basicCache.clear()
@@ -223,10 +258,12 @@ class SQLDatabase<U : User>(
     override fun purge() {
         database.runQuery(Query.query("DELETE FROM ${config.tablePrefix}users;"))
         database.runQuery(Query.query("DELETE FROM ${config.tablePrefix}basic_users;"))
+        database.runQuery(Query.query("DELETE FROM ${config.tablePrefix}queue;"))
     }
 
     override fun purgeBasic() {
         database.runQuery(Query.query("DELETE FROM ${config.tablePrefix}basic_users;"))
+        database.runQuery(Query.query("DELETE FROM ${config.tablePrefix}queue;"))
     }
 
     override fun purgeBasic(serverId: String) {

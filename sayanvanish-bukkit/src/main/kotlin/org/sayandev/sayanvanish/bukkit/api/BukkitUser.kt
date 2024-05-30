@@ -94,7 +94,7 @@ open class BukkitUser(
     }
 
     override fun hasPermission(permission: String): Boolean {
-        return player()?.hasPermission(permission) ?: false
+        return player()?.hasPermission(permission) == true
     }
 
     override fun sendMessage(content: String) {

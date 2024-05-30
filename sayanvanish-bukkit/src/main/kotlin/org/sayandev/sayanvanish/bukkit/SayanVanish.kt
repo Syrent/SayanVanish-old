@@ -40,11 +40,6 @@ open class SayanVanish : JavaPlugin() {
         VanishManager
 
         RegisteredFeatureHandler.process()
-        /*settings.vanish.features.addAll(Features.features().filter { !settings.vanish.features.map { it.id }.contains(it.id) })
-        settings.save()
-        settings.vanish.features.forEach {
-            if (it.enabled) it.enable()
-        }*/
 
         SayanVanishCommand()
 
@@ -67,7 +62,7 @@ open class SayanVanish : JavaPlugin() {
             Library.builder()
                 .groupId("org{}sayandev")
                 .artifactId("stickynote-core")
-                .version("1.0.29")
+                .version("1.0.30")
                 .relocate("org{}sayandev{}stickynote", "org{}sayandev{}sayanvanish{}lib{}stickynote")
                 .build()
         )
@@ -75,7 +70,15 @@ open class SayanVanish : JavaPlugin() {
             Library.builder()
                 .groupId("org{}sayandev")
                 .artifactId("stickynote-bukkit")
-                .version("1.0.29")
+                .version("1.0.30")
+                .relocate("org{}sayandev{}stickynote", "org{}sayandev{}sayanvanish{}lib{}stickynote")
+                .build()
+        )
+        libraryManager.loadLibrary(
+            Library.builder()
+                .groupId("org{}sayandev")
+                .artifactId("stickynote-bukkit-nms")
+                .version("1.0.30")
                 .relocate("org{}sayandev{}stickynote", "org{}sayandev{}sayanvanish{}lib{}stickynote")
                 .build()
         )

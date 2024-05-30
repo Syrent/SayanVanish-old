@@ -3,12 +3,10 @@ package org.sayandev.sayanvanish.velocity
 import com.velocitypowered.api.event.Subscribe
 import com.velocitypowered.api.event.connection.DisconnectEvent
 import com.velocitypowered.api.event.player.ServerPostConnectEvent
-import net.kyori.adventure.text.Component
 import org.sayandev.sayanvanish.api.BasicUser
 import org.sayandev.sayanvanish.api.Platform
 import org.sayandev.sayanvanish.velocity.api.SayanVanishVelocityAPI
 import org.sayandev.sayanvanish.velocity.api.SayanVanishVelocityAPI.Companion.getOrCreateUser
-import org.sayandev.stickynote.velocity.utils.AdventureUtils.component
 import kotlin.jvm.optionals.getOrNull
 
 object VanishManager {

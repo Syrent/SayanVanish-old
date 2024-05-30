@@ -4,10 +4,8 @@ import org.sayandev.sayanvanish.api.Platform
 import org.sayandev.stickynote.core.configuration.Config
 import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.sayandev.stickynote.velocity.dataDirectory
-import org.sayandev.stickynote.velocity.warn
 import java.io.File
 import java.util.UUID
-import kotlin.io.path.absolutePathString
 
 public var settings: SettingsConfig = SettingsConfig.fromConfig() ?: SettingsConfig.defaultConfig()
 

@@ -11,13 +11,19 @@ import org.sayandev.sayanvanish.api.Platform
 import org.sayandev.sayanvanish.api.database.DatabaseConfig
 import org.sayandev.sayanvanish.api.database.databaseConfig
 import org.sayandev.sayanvanish.velocity.api.SayanVanishVelocityAPI
+import org.sayandev.sayanvanish.velocity.api.database
 import org.sayandev.sayanvanish.velocity.config.SettingsConfig
 import org.sayandev.sayanvanish.velocity.config.settings
 import org.sayandev.stickynote.velocity.StickyNotePlugin
 import org.sayandev.stickynote.velocity.WrappedStickyNotePlugin
+import org.sayandev.stickynote.velocity.onlinePlayers
+import org.sayandev.stickynote.velocity.plugin
 import org.sayandev.stickynote.velocity.registerListener
+import org.sayandev.stickynote.velocity.run
+import org.sayandev.stickynote.velocity.wrappedPlugin
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 
 class SayanVanish @Inject constructor(
@@ -88,7 +94,7 @@ class SayanVanish @Inject constructor(
             Library.builder()
                 .groupId("org{}sayandev")
                 .artifactId("stickynote-core")
-                .version("1.0.29")
+                .version("1.0.30")
                 .relocate("org{}sayandev{}stickynote", "org{}sayandev{}sayanvanish{}lib{}stickynote")
                 .build()
         )
@@ -96,7 +102,7 @@ class SayanVanish @Inject constructor(
             Library.builder()
                 .groupId("org{}sayandev")
                 .artifactId("stickynote-proxy-velocity")
-                .version("1.0.29")
+                .version("1.0.30")
                 .relocate("org{}sayandev{}stickynote", "org{}sayandev{}sayanvanish{}lib{}stickynote")
                 .build()
         )

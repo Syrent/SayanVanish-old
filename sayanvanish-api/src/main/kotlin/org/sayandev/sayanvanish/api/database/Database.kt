@@ -3,6 +3,7 @@ package org.sayandev.sayanvanish.api.database
 import org.sayandev.sayanvanish.api.BasicUser
 import org.sayandev.sayanvanish.api.User
 import java.util.*
+import java.util.function.Consumer
 import kotlin.reflect.KClass
 
 interface Database<U: User> {
@@ -34,6 +35,11 @@ interface Database<U: User> {
 
     fun removeUser(uniqueId: UUID)
     fun removeBasicUser(uniqueId: UUID)
+
+    fun isInQueue(uniqueId: UUID, result: Consumer<Boolean>)
+    fun addToQueue(uniqueId: UUID, vanished: Boolean)
+    fun getFromQueue(uniqueId: UUID, result: Consumer<Boolean>)
+    fun removeFromQueue(uniqueId: UUID)
 
     fun purgeCache()
 

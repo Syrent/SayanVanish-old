@@ -13,7 +13,7 @@ description = "A modular vanish system for Minecraft servers"
 
 allprojects {
     group = "org.sayandev"
-    version = "1.0.0-beta.11"
+    version = "1.0.0-beta.12"
 
     plugins.apply("java-library")
     plugins.apply("maven-publish")
@@ -22,7 +22,7 @@ allprojects {
 
     repositories {
         mavenCentral()
-//        mavenLocal()
+        mavenLocal()
 
         // Takenaka
         maven("https://repo.screamingsandals.org/public")

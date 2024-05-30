@@ -25,21 +25,14 @@ open class VelocityUser(
 
     fun player(): Player? = StickyNote.getPlayer(uniqueId)
 
-    /** TODO: Implement both Redis and PluginMessage way for users
-     * PluginMessage will be somehow suitable for single velocity instance
-     * Redis will be more suitable in all situation and multiple velocity instances
-     * I have to create a Queue system for requests and remove them from the queue after the request is completed
-     * The redis version can be platform independent so it will be better to not implement it inside the velocity module
-     * Also Redis could be used instead of MySQL/SQLite as database for storing user data so implementing a Redis method for Database interface is also an option to consider
-     */
     override fun vanish(options: VanishOptions) {
-        // TODO: Send vanish request to all backend servers. (requires custom event servers)
-        TODO("vanish player from velocity is not implemented")
+        database.addToQueue(uniqueId, true)
+        super.vanish(options)
     }
 
     override fun unVanish(options: VanishOptions) {
-        // TODO: Send unvanish request to all backend servers. (requires custom event servers)
-        TODO("unvanish player from velocity is not implemented")
+        database.addToQueue(uniqueId, false)
+        super.unVanish(options)
     }
 
     override fun hasPermission(permission: String): Boolean {

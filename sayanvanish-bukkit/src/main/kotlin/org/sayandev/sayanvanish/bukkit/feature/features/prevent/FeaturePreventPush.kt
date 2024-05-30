@@ -11,7 +11,7 @@ import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.Confi
 
 @RegisteredFeature
 @ConfigSerializable
-class FeaturePreventPush: ListenedFeature("prevent_push", category = FeatureCategories.PREVENTION) {
+class FeaturePreventPush: ListenedFeature("prevent_push", enabled = false, category = FeatureCategories.PREVENTION) {
 
     @EventHandler
     private fun onVanish(event: BukkitUserVanishEvent) {
