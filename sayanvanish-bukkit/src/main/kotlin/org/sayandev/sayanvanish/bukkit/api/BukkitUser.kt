@@ -131,7 +131,7 @@ open class BukkitUser(
     }
 
     fun showUser() {
-        for (onlinePlayer in onlinePlayers) {
+        for (onlinePlayer in onlinePlayers.filter { it.uniqueId != this.uniqueId }) {
             showUser(onlinePlayer)
         }
         if (currentOptions.notifyOthers) {
@@ -142,7 +142,10 @@ open class BukkitUser(
     }
 
     fun showUser(target: Player) {
-        player()?.let { target.showPlayer(plugin, it) }
+        player()?.let { player ->
+            target.showPlayer(plugin, player)
+            NMSUtils.sendPacket(target, PacketUtils.getAddEntityPacket(NMSUtils.getServerPlayer(player)))
+        }
     }
 
     companion object {

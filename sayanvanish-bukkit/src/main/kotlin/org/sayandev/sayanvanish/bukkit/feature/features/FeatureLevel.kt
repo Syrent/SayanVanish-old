@@ -20,7 +20,7 @@ import org.sayandev.stickynote.lib.spongepowered.configurate.objectmapping.Confi
 @RegisteredFeature
 @ConfigSerializable
 class FeatureLevel(
-    val seeAsSpectator: Boolean
+    val seeAsSpectator: Boolean = true
 ): ListenedFeature("level") {
 
     @EventHandler
@@ -31,7 +31,10 @@ class FeatureLevel(
             for (onlinePlayer in onlinePlayers.filter { it.uniqueId != user.uniqueId }) {
                 val playerVanishLevel = onlinePlayer.user()?.vanishLevel ?: 0
                 if (playerVanishLevel < user.vanishLevel) {
-                    user.player()?.let { onlinePlayer.hidePlayer(plugin, it) }
+                    user.player()?.let { player ->
+                        onlinePlayer.hidePlayer(plugin, player)
+                        NMSUtils.sendPacket(onlinePlayer, PacketUtils.getRemoveEntitiesPacket(player.entityId))
+                    }
                 } else {
                     if (seeAsSpectator) {
                         user.player()?.let { player -> NMSUtils.sendPacket(onlinePlayer, PacketUtils.getUpdateGameModePacket(NMSUtils.getServerPlayer(player), GameMode.SPECTATOR)) }
